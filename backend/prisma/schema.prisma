@@ -1,0 +1,233 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?
+
+  vendors     Vendor[]
+
+  statTemplates     CategoryStatTemplate[]
+  amenityTemplates  CategoryAmenityTemplate[]
+  packageTemplates  CategoryPackageTemplate[]
+
+  createdAt   DateTime @default(now())
+}
+
+model City {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  state     String
+
+  vendors   Vendor[]
+
+  createdAt DateTime @default(now())
+}
+
+model Vendor {
+
+  id          Int      @id @default(autoincrement())
+
+  name        String
+  slug        String   @unique
+
+  description String?
+
+  phone       String?
+  whatsapp    String?
+
+  imageUrl    String?
+
+  rating      Float    @default(0)
+
+  isElite     Boolean  @default(false)
+
+  startingPrice String?
+
+  pricingUnit String?
+
+  address String?
+  zipcode String?
+  latitude Float?
+  longitude Float?
+
+  websiteUrl String?
+
+  instagramUrl String?
+
+  facebookUrl String?
+
+  youtubeUrl String?
+
+  linkedinUrl String?
+
+  googleBusinessUrl String?
+
+  categoryId  Int
+  cityId      Int
+
+  category    Category @relation(fields: [categoryId], references: [id])
+  city        City     @relation(fields: [cityId], references: [id])
+
+  stats       VendorStat[]
+  amenities   VendorAmenity[]
+  packages    VendorPackage[]
+
+  showPackages Boolean @default(false)
+
+  createdAt   DateTime @default(now())
+
+  @@index([categoryId])
+  @@index([cityId])
+  @@index([zipcode])
+
+}
+
+model CategoryStatTemplate {
+
+  id          Int @id @default(autoincrement())
+
+  categoryId  Int
+
+  label       String
+
+  icon        String?
+
+  sortOrder   Int @default(0)
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  vendorStats VendorStat[]
+
+  @@index([categoryId])
+}
+
+model VendorStat {
+
+  id Int @id @default(autoincrement())
+
+  vendorId Int
+
+  templateId Int
+
+  value String
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  template CategoryStatTemplate @relation(fields: [templateId], references: [id])
+
+  @@index([vendorId])
+}
+
+model AmenityTemplate {
+
+  id Int @id @default(autoincrement())
+
+  name String
+
+  slug String @unique
+
+  categories CategoryAmenityTemplate[]
+
+  vendors VendorAmenity[]
+}
+
+model CategoryAmenityTemplate {
+
+  categoryId Int
+
+  amenityId Int
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  amenity AmenityTemplate @relation(fields: [amenityId], references: [id])
+
+  @@id([categoryId, amenityId])
+}
+
+model VendorAmenity {
+
+  vendorId Int
+
+  amenityId Int
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  amenity AmenityTemplate @relation(fields: [amenityId], references: [id])
+
+  @@id([vendorId, amenityId])
+  @@index([vendorId])
+}
+
+model CategoryPackageTemplate {
+
+  id Int @id @default(autoincrement())
+
+  categoryId Int
+
+  name String
+
+  sortOrder Int @default(0)
+
+  category Category @relation(fields: [categoryId], references: [id])
+
+  vendorPackages VendorPackage[]
+  @@index([categoryId])
+}
+
+model PackageFeatureTemplate {
+
+  id Int @id @default(autoincrement())
+
+  name String
+
+  slug String @unique
+
+  packageFeatures VendorPackageFeature[]
+}
+
+model VendorPackage {
+
+  id Int @id @default(autoincrement())
+
+  vendorId Int
+
+  packageTemplateId Int
+
+  price String
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  packageTemplate CategoryPackageTemplate @relation(fields: [packageTemplateId], references: [id])
+
+  features VendorPackageFeature[]
+  @@index([vendorId])
+  @@index([packageTemplateId])
+}
+
+model VendorPackageFeature {
+
+  packageId Int
+
+  featureId Int
+
+  package VendorPackage @relation(fields: [packageId], references: [id])
+
+  feature PackageFeatureTemplate @relation(fields: [featureId], references: [id])
+
+  @@id([packageId, featureId])
+}
