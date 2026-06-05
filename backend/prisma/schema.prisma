@@ -231,3 +231,15 @@ model VendorPackageFeature {
 
   @@id([packageId, featureId])
 }
+
+model CategoryPackageFeatureTemplate {
+
+  categoryId Int
+
+  featureId Int
+
+  category Category @relation(...)
+  feature PackageFeatureTemplate @relation(...)
+
+  @@id([categoryId, featureId])
+}

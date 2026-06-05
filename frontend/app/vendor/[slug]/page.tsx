@@ -32,6 +32,29 @@ export default async function VendorPage({
 
             <h1>{vendor.name}</h1>
 
+            <h2>
+                Business Information
+            </h2>
+
+            <p>
+                📍 {vendor.address}
+            </p>
+            
+            <p>
+                📍 {vendor.city.name}
+            </p>
+
+            <p>
+                📮 {vendor.zipcode}
+            </p>
+
+            <p>
+                💰 Starting From ₹
+                {vendor.startingPrice}
+                {" "}
+                {vendor.pricingUnit}
+            </p>
+
             {vendor.isElite && (
                 <p>
                     🏆 Elite Vendor
@@ -42,17 +65,11 @@ export default async function VendorPage({
                 ⭐ {vendor.rating}
             </p>
 
-            <p>
-                📍 {vendor.city.name}
-            </p>
 
             <p>
                 🏷 {vendor.category.name}
             </p>
 
-            <p>
-                {vendor.description}
-            </p>
 
             <h2>Stats</h2>
 
@@ -77,26 +94,56 @@ export default async function VendorPage({
                     )
                 )}
             </div>
-
-            <h2>Packages</h2>
-
-            {vendor.packages.map((pkg: any) => (
-            <div key={pkg.id}>
-
-                <h3>
-                {pkg.packageTemplate.name}
-                </h3>
-
-                <p>{pkg.price}</p>
-
-                {pkg.features.map((f: any) => (
-                <p key={f.feature.id}>
-                    ✓ {f.feature.name}
+            <h2>
+                Online Presence
+            </h2>
+            {vendor.websiteUrl && (
+                <p>
+                    🌐
+                    <a
+                        href={vendor.websiteUrl}
+                        target="_blank"
+                    >
+                        Website
+                    </a>
                 </p>
-                ))}
+            )}
+            {vendor.instagramUrl && (
+                <p>
+                    📸
+                    <a
+                        href={vendor.instagramUrl}
+                        target="_blank"
+                    >
+                        Instagram
+                    </a>
+                </p>
+            )}
+            {vendor.showPackages &&
+                vendor.packages.length > 0 && (
+                    <>
+                        <h2>Packages</h2>
 
-            </div>
-            ))}
+                        {vendor.packages.map((pkg: any) => (
+                            <div key={pkg.id}>
+
+                                <h3>
+                                    {pkg.packageTemplate.name}
+                                </h3>
+
+                                <p> ₹ {pkg.price}</p>
+
+                                {pkg.features.map((f: any) => (
+                                    <p key={f.feature.id}>
+                                        ✓ {f.feature.name}
+                                    </p>
+                                ))}
+
+                            </div>
+                        ))}
+
+                    </>
+                )}
 
             <div
                 style={{

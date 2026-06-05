@@ -30,6 +30,14 @@ export default function VendorCard({
       <p>{vendor.city.name}</p>
 
       <p>⭐ {vendor.rating}</p>
+
+       <p>
+                💰 Starting From ₹
+                {vendor.startingPrice}
+                {" "}
+                {vendor.pricingUnit}
+            </p>
+
     </div>
   );
 }
