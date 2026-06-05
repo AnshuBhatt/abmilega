@@ -65,11 +65,17 @@ const getOnboardingConfig = async (req, res) => {
     
   });
 
-  const packageFeatureTemplates =
-  await prisma.packageFeatureTemplate.findMany({
-    orderBy: {
-      name: "asc",
+const packageFeatureTemplates =
+  await prisma.categoryPackageFeatureTemplate.findMany({
+
+    where: {
+      categoryId: Number(id),
     },
+
+    include: {
+      feature: true,
+    },
+
   });
 console.log(category.packageTemplates);
   res.json({
@@ -86,7 +92,10 @@ console.log(category.packageTemplates);
       packageTemplates:
     category.packageTemplates,
 
-  packageFeatureTemplates,
+ packageFeatureTemplates:
+  packageFeatureTemplates.map(
+    (item) => item.feature
+  ),
   });
 };
 
