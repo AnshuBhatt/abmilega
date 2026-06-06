@@ -13,57 +13,56 @@ datasource db {
 }
 
 model Category {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
-  slug        String   @unique
+  slug        String  @unique
   description String?
 
-  vendors     Vendor[]
+  vendors Vendor[]
 
-  statTemplates     CategoryStatTemplate[]
-  amenityTemplates  CategoryAmenityTemplate[]
-  packageTemplates  CategoryPackageTemplate[]
+  statTemplates           CategoryStatTemplate[]
+  amenityTemplates        CategoryAmenityTemplate[]
+  packageTemplates        CategoryPackageTemplate[]
   packageFeatureTemplates CategoryPackageFeatureTemplate[]
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model City {
-  id        Int      @id @default(autoincrement())
-  name      String
-  slug      String   @unique
-  state     String
+  id    Int    @id @default(autoincrement())
+  name  String
+  slug  String @unique
+  state String
 
-  vendors   Vendor[]
+  vendors Vendor[]
 
   createdAt DateTime @default(now())
 }
 
 model Vendor {
+  id Int @id @default(autoincrement())
 
-  id          Int      @id @default(autoincrement())
-
-  name        String
-  slug        String   @unique
+  name String
+  slug String @unique
 
   description String?
 
-  phone       String?
-  whatsapp    String?
+  phone    String?
+  whatsapp String?
 
-  imageUrl    String?
+  imageUrl String?
 
-  rating      Float    @default(0)
+  rating Float @default(0)
 
-  isElite     Boolean  @default(false)
+  isElite Boolean @default(false)
 
   startingPrice String?
 
   pricingUnit String?
 
-  address String?
-  zipcode String?
-  latitude Float?
+  address   String?
+  zipcode   String?
+  latitude  Float?
   longitude Float?
 
   websiteUrl String?
@@ -78,38 +77,37 @@ model Vendor {
 
   googleBusinessUrl String?
 
-  categoryId  Int
-  cityId      Int
+  categoryId Int
+  cityId     Int
 
-  category    Category @relation(fields: [categoryId], references: [id])
-  city        City     @relation(fields: [cityId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+  city     City     @relation(fields: [cityId], references: [id])
 
-  stats       VendorStat[]
-  amenities   VendorAmenity[]
-  packages    VendorPackage[]
-  reviews     VendorReview[]
+  stats     VendorStat[]
+  amenities VendorAmenity[]
+  packages  VendorPackage[]
+  reviews   VendorReview[]
+  events    VendorEvent[]
 
   showPackages Boolean @default(false)
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([categoryId])
   @@index([cityId])
   @@index([zipcode])
-
 }
 
 model CategoryStatTemplate {
+  id Int @id @default(autoincrement())
 
-  id          Int @id @default(autoincrement())
+  categoryId Int
 
-  categoryId  Int
+  label String
 
-  label       String
+  icon String?
 
-  icon        String?
-
-  sortOrder   Int @default(0)
+  sortOrder Int @default(0)
 
   category Category @relation(fields: [categoryId], references: [id])
 
@@ -119,7 +117,6 @@ model CategoryStatTemplate {
 }
 
 model VendorStat {
-
   id Int @id @default(autoincrement())
 
   vendorId Int
@@ -136,7 +133,6 @@ model VendorStat {
 }
 
 model AmenityTemplate {
-
   id Int @id @default(autoincrement())
 
   name String
@@ -149,7 +145,6 @@ model AmenityTemplate {
 }
 
 model CategoryAmenityTemplate {
-
   categoryId Int
 
   amenityId Int
@@ -162,7 +157,6 @@ model CategoryAmenityTemplate {
 }
 
 model VendorAmenity {
-
   vendorId Int
 
   amenityId Int
@@ -176,7 +170,6 @@ model VendorAmenity {
 }
 
 model CategoryPackageTemplate {
-
   id Int @id @default(autoincrement())
 
   categoryId Int
@@ -188,11 +181,11 @@ model CategoryPackageTemplate {
   category Category @relation(fields: [categoryId], references: [id])
 
   vendorPackages VendorPackage[]
+
   @@index([categoryId])
 }
 
 model PackageFeatureTemplate {
-
   id Int @id @default(autoincrement())
 
   name String
@@ -200,11 +193,10 @@ model PackageFeatureTemplate {
   slug String @unique
 
   packageFeatures VendorPackageFeature[]
-  categories CategoryPackageFeatureTemplate[]
+  categories      CategoryPackageFeatureTemplate[]
 }
 
 model VendorPackage {
-
   id Int @id @default(autoincrement())
 
   vendorId Int
@@ -218,12 +210,12 @@ model VendorPackage {
   packageTemplate CategoryPackageTemplate @relation(fields: [packageTemplateId], references: [id])
 
   features VendorPackageFeature[]
+
   @@index([vendorId])
   @@index([packageTemplateId])
 }
 
 model VendorPackageFeature {
-
   packageId Int
 
   featureId Int
@@ -236,20 +228,18 @@ model VendorPackageFeature {
 }
 
 model CategoryPackageFeatureTemplate {
-
- categoryId Int
+  categoryId Int
 
   featureId Int
 
-  category Category @relation(fields: [categoryId],references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 
-  feature PackageFeatureTemplate @relation(fields: [featureId],references: [id])
+  feature PackageFeatureTemplate @relation(fields: [featureId], references: [id])
 
   @@id([categoryId, featureId])
 }
 
 model VendorReview {
-
   id Int @id @default(autoincrement())
 
   vendorId Int
@@ -264,7 +254,22 @@ model VendorReview {
 
   createdAt DateTime @default(now())
 
-  vendor Vendor @relation(fields: [vendorId],references: [id])
+  vendor Vendor @relation(fields: [vendorId], references: [id])
 
   @@index([vendorId])
+}
+
+model VendorEvent {
+  id Int @id @default(autoincrement())
+
+  vendorId Int
+
+  eventType String
+
+  createdAt DateTime @default(now())
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+  @@index([eventType])
 }

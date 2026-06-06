@@ -652,6 +652,83 @@ if (packages?.length) {
 
 };
 
+const getVendorAnalytics = async (
+  req,
+  res
+) => {
+
+  const { id } = req.params;
+
+  const vendorId =
+    Number(id);
+
+  const events =
+    await prisma.vendorEvent.groupBy({
+
+      by: ["eventType"],
+
+      where: {
+        vendorId,
+      },
+
+      _count: true,
+
+    });
+
+  const analytics = {
+
+    views: 0,
+
+    callClicks: 0,
+
+    whatsappClicks: 0,
+
+    mapClicks: 0,
+
+  };
+
+  events.forEach((event) => {
+
+    if (
+      event.eventType ===
+      "VIEW"
+    ) {
+      analytics.views =
+        event._count;
+    }
+
+    if (
+      event.eventType ===
+      "CALL_CLICK"
+    ) {
+      analytics.callClicks =
+        event._count;
+    }
+
+    if (
+      event.eventType ===
+      "WHATSAPP_CLICK"
+    ) {
+      analytics.whatsappClicks =
+        event._count;
+    }
+
+    if (
+      event.eventType ===
+      "MAP_CLICK"
+    ) {
+      analytics.mapClicks =
+        event._count;
+    }
+
+  });
+
+  res.json(
+    analytics
+  );
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -660,4 +737,5 @@ module.exports = {
   deleteVendor,
   getVendorById,
   updateVendor,
+  getVendorAnalytics,
 }

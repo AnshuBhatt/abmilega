@@ -1,5 +1,8 @@
 import ReviewForm from "@/components/ReviewForm";
 
+import VendorViewTracker from "@/components/VendorViewTracker";
+import TrackedLink from "@/components/TrackedLink";
+
 async function getVendor(slug: string) {
     const res = await fetch(
         `http://localhost:5000/vendors/${slug}`,
@@ -11,6 +14,8 @@ async function getVendor(slug: string) {
     return res.json();
 }
 
+
+
 export default async function VendorPage({
     params,
 }: {
@@ -20,8 +25,41 @@ export default async function VendorPage({
 
     const vendor = await getVendor(slug);
 
+    <VendorViewTracker
+  vendorId={vendor.id}
+/>
+async function trackEvent(
+  eventType: string
+) {
+
+  await fetch(
+
+    `http://localhost:5000/vendors/${vendor.id}/events`,
+
+    {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        eventType,
+      }),
+
+    }
+
+  );
+
+}
     return (
+        
         <div style={{ padding: "20px" }}>
+            <VendorViewTracker
+  vendorId={vendor.id}
+/>
             {vendor.imageUrl && (
                 <img
                     src={vendor.imageUrl}
@@ -50,19 +88,17 @@ export default async function VendorPage({
 
             {vendor.address && (
 
-                <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                        `${vendor.name} ${vendor.address} ${vendor.zipcode ?? ""}`
-                    )}`}
-                    target="_blank"
-                >
-
-                    <button>
-                        📍 Open in Google Maps
-                    </button>
-
-                </a>
-
+               <TrackedLink
+  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${vendor.name} ${vendor.address} ${vendor.zipcode ?? ""}`
+  )}`}
+  vendorId={vendor.id}
+  eventType="MAP_CLICK"
+>
+  <button>
+    📍 Open in Google Maps
+  </button>
+</TrackedLink>
             )}
 
             <p>
@@ -204,22 +240,25 @@ export default async function VendorPage({
                     gap: "10px",
                 }}
             >
-                <a
-                    href={`tel:${vendor.phone}`}
-                >
-                    <button>
-                        📞 Call Vendor
-                    </button>
-                </a>
+                <TrackedLink
+  href={`tel:${vendor.phone}`}
+  vendorId={vendor.id}
+  eventType="CALL_CLICK"
+>
+  <button>
+    📞 Call Vendor
+  </button>
+</TrackedLink>
 
-                <a
-                    href={`https://wa.me/91${vendor.whatsapp}`}
-                    target="_blank"
-                >
-                    <button>
-                        💬 WhatsApp Vendor
-                    </button>
-                </a>
+                <TrackedLink
+  href={`https://wa.me/91${vendor.whatsapp}`}
+  vendorId={vendor.id}
+  eventType="WHATSAPP_CLICK"
+>
+  <button>
+    💬 WhatsApp Vendor
+  </button>
+</TrackedLink>
             </div>
             <hr />
 

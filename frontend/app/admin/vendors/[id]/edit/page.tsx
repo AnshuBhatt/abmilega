@@ -37,20 +37,7 @@ export default async function EditVendorPage({
       initialVendor={vendor}
     />
 <br/>
-    <pre>
-  {JSON.stringify(
-    vendor.stats,
-    null,
-    2
-  )}
-</pre><br/>
-<pre>
-  {JSON.stringify(
-    vendor.amenities,
-    null,
-    2
-  )}
-</pre>
+    
 
     </div>
 

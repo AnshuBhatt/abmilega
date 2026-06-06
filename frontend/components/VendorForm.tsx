@@ -724,24 +724,11 @@ fetch(
 
         <h2>Package Templates</h2>
 
-        <pre>
-          {JSON.stringify(
-            onboardingConfig?.packageTemplates,
-            null,
-            2
-          )}
-        </pre>
 
         <br /><br />
         <h2>Package Features</h2>
 
-        <pre>
-          {JSON.stringify(
-            onboardingConfig?.packageFeatureTemplates,
-            null,
-            2
-          )}
-        </pre><br /><br />
+       <br /><br />
         <h2>Packages</h2>
 
         {onboardingConfig?.packageTemplates?.map(
@@ -810,13 +797,7 @@ fetch(
                 }
               />
 
-              <pre>
-                {JSON.stringify(
-                  packagesData,
-                  null,
-                  2
-                )}
-              </pre>
+             
 
             </div>
 

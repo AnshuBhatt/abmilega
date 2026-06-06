@@ -8,14 +8,17 @@ const {
   createReview,
   deleteVendor,
   getVendorById,
-  updateVendor
+  updateVendor,
+  getVendorAnalytics
 } = require("../controllers/vendorController");
 
-
+const {
+  createEvent,
+} = require(
+  "../controllers/vendorEventController"
+);
 
 router.get("/", getVendors);
-
-router.get("/:slug", getVendorBySlug);
 
 router.post("/", createVendor);
 
@@ -29,15 +32,30 @@ router.delete(
   deleteVendor
 );
 
+
 router.get(
   "/id/:id",
   getVendorById
 );
 
+router.get(
+  "/:id/analytics",
+  getVendorAnalytics
+);
+
+router.get("/:slug", getVendorBySlug);
+
 router.put(
   "/:id",
   updateVendor
 );
+
+router.post(
+  "/:vendorId/events",
+  createEvent
+);
+
+
 
 
 module.exports = router;
