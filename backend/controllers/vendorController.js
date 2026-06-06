@@ -34,7 +34,47 @@ const getVendors = async (req, res) => {
   res.json(vendors);
 };
 
+const createReview = async (req, res) => {
 
+  try {
+
+    const { vendorId } = req.params;
+
+    const {
+      reviewerName,
+      rating,
+      comment,
+    } = req.body;
+
+    const review =
+      await prisma.vendorReview.create({
+
+        data: {
+
+          vendorId: Number(vendorId),
+
+          reviewerName,
+
+          rating: Number(rating),
+
+          comment,
+
+        },
+
+      });
+
+    res.status(201).json(review);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+
+  }
+};
 
 const createVendor = async (req, res) => {
   try {
@@ -62,8 +102,8 @@ const createVendor = async (req, res) => {
 
       stats,
       amenities,
-      
-        packages,
+
+      packages,
 
     } = req.body;
 
@@ -94,7 +134,7 @@ const createVendor = async (req, res) => {
           startingPrice,
           pricingUnit,
 
-          
+
 
           categoryId: Number(categoryId),
           cityId: Number(cityId),
@@ -123,48 +163,48 @@ const createVendor = async (req, res) => {
         },
       });
 
-      if (packages?.length) {
+    if (packages?.length) {
 
-  for (const pkg of packages) {
+      for (const pkg of packages) {
 
-    const vendorPackage =
-      await prisma.vendorPackage.create({
+        const vendorPackage =
+          await prisma.vendorPackage.create({
 
-        data: {
+            data: {
 
-          vendorId: vendor.id,
+              vendorId: vendor.id,
 
-          packageTemplateId:
-            pkg.packageTemplateId,
+              packageTemplateId:
+                pkg.packageTemplateId,
 
-          price: pkg.price,
+              price: pkg.price,
 
-        },
+            },
 
-      });
+          });
 
-    if (pkg.features?.length) {
+        if (pkg.features?.length) {
 
-      await prisma.vendorPackageFeature.createMany({
+          await prisma.vendorPackageFeature.createMany({
 
-        data: pkg.features.map(
-          (featureId) => ({
+            data: pkg.features.map(
+              (featureId) => ({
 
-            packageId:
-              vendorPackage.id,
+                packageId:
+                  vendorPackage.id,
 
-            featureId,
+                featureId,
 
-          })
-        ),
+              })
+            ),
 
-      });
+          });
+
+        }
+
+      }
 
     }
-
-  }
-
-}
 
     res.status(201).json(vendor);
   } catch (error) {
@@ -177,14 +217,17 @@ const createVendor = async (req, res) => {
 };
 
 const getVendorBySlug = async (req, res) => {
+
   const { slug } = req.params;
 
   const vendor = await prisma.vendor.findUnique({
+
     where: {
       slug,
     },
 
     include: {
+
       category: true,
 
       city: true,
@@ -208,13 +251,21 @@ const getVendorBySlug = async (req, res) => {
 
           features: {
             include: {
-              feature: true
-            }
-          }
+              feature: true,
+            },
+          },
 
-        }
-      }
+        },
+      },
+
+      reviews: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+
     },
+
   });
 
   if (!vendor) {
@@ -224,10 +275,12 @@ const getVendorBySlug = async (req, res) => {
   }
 
   res.json(vendor);
+
 };
 
 module.exports = {
   getVendors,
   createVendor,
   getVendorBySlug,
+  createReview,
 }

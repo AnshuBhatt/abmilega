@@ -1,4 +1,4 @@
-
+import ReviewForm from "@/components/ReviewForm";
 
 async function getVendor(slug: string) {
     const res = await fetch(
@@ -39,7 +39,7 @@ export default async function VendorPage({
             <p>
                 📍 {vendor.address}
             </p>
-            
+
             <p>
                 📍 {vendor.city.name}
             </p>
@@ -47,6 +47,23 @@ export default async function VendorPage({
             <p>
                 📮 {vendor.zipcode}
             </p>
+
+            {vendor.address && (
+
+                <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                        `${vendor.name} ${vendor.address} ${vendor.zipcode ?? ""}`
+                    )}`}
+                    target="_blank"
+                >
+
+                    <button>
+                        📍 Open in Google Maps
+                    </button>
+
+                </a>
+
+            )}
 
             <p>
                 💰 Starting From ₹
@@ -119,32 +136,67 @@ export default async function VendorPage({
                     </a>
                 </p>
             )}
-            {vendor.showPackages &&
+
+            <p>
+                showPackages:
+                {String(vendor.showPackages)}
+            </p>
+
+            <p>
+                package count:
+                {vendor.packages.length}
+            </p>
+
+            {
                 vendor.packages.length > 0 && (
+
                     <>
                         <h2>Packages</h2>
 
                         {vendor.packages.map((pkg: any) => (
-                            <div key={pkg.id}>
+
+                            <div
+                                key={pkg.id}
+                                style={{
+                                    border: "1px solid #ddd",
+                                    padding: "20px",
+                                    marginBottom: "20px",
+                                    borderRadius: "10px",
+                                }}
+                            >
 
                                 <h3>
                                     {pkg.packageTemplate.name}
                                 </h3>
 
-                                <p> ₹ {pkg.price}</p>
+                                <h2>
+                                    ₹ {Number(pkg.price).toLocaleString()}
+                                </h2>
 
-                                {pkg.features.map((f: any) => (
-                                    <p key={f.feature.id}>
-                                        ✓ {f.feature.name}
-                                    </p>
-                                ))}
+                                <h4>
+                                    Included Features
+                                </h4>
+
+                                {pkg.features.map(
+                                    (f: any) => (
+
+                                        <p
+                                            key={
+                                                f.feature.id
+                                            }
+                                        >
+                                            ✓ {f.feature.name}
+                                        </p>
+
+                                    )
+                                )}
 
                             </div>
+
                         ))}
-
                     </>
-                )}
 
+                )}
             <div
                 style={{
                     marginTop: "20px",
@@ -181,8 +233,45 @@ export default async function VendorPage({
                 WhatsApp: {vendor.whatsapp}
             </p>
 
+            <h2>AB Milega Reviews</h2>
 
+            {vendor.reviews.length === 0 && (
+                <p>
+                    No reviews yet.
+                </p>
+            )}
 
+            {vendor.reviews.map((review: any) => (
+
+                <div
+                    key={review.id}
+                    style={{
+                        border: "1px solid #ddd",
+                        padding: "15px",
+                        marginBottom: "10px",
+                        borderRadius: "8px",
+                    }}
+                >
+
+                    <h4>
+                        {review.reviewerName}
+                    </h4>
+
+                    <p>
+                        {"⭐".repeat(review.rating)}
+                    </p>
+
+                    <p>
+                        {review.comment}
+                    </p>
+
+                </div>
+
+            ))}
+            <ReviewForm
+                vendorId={vendor.id}
+            />
         </div>
+
     );
 }
