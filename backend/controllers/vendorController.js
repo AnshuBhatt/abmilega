@@ -376,10 +376,288 @@ const deleteVendor = async (req, res) => {
 
 };
 
+const getVendorById = async (req, res) => {
+
+  const { id } = req.params;
+
+  const vendor =
+    await prisma.vendor.findUnique({
+
+      where: {
+        id: Number(id),
+      },
+
+      include: {
+
+        category: true,
+
+        city: true,
+
+        stats: true,
+
+        amenities: true,
+
+        packages: {
+          include: {
+            features: true,
+          },
+        },
+
+        reviews: true,
+
+      },
+
+    });
+
+  if (!vendor) {
+
+    return res.status(404).json({
+      message: "Vendor not found",
+    });
+
+  }
+
+  res.json(vendor);
+
+};
+
+const updateVendor = async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+
+      name,
+      description,
+
+      phone,
+      whatsapp,
+
+      imageUrl,
+
+      address,
+      zipcode,
+
+      websiteUrl,
+      instagramUrl,
+
+      startingPrice,
+      pricingUnit,
+
+      categoryId,
+      cityId,
+
+      stats,
+      amenities,
+
+      packages,
+
+    } = req.body;
+
+    const vendorId =
+      Number(id);
+
+    await prisma.vendor.update({
+
+      where: {
+        id: vendorId,
+      },
+
+      data: {
+
+        name,
+        description,
+
+        phone,
+        whatsapp,
+
+        imageUrl,
+
+        address,
+        zipcode,
+
+        websiteUrl,
+        instagramUrl,
+
+        startingPrice,
+        pricingUnit,
+
+        categoryId:
+          Number(categoryId),
+
+        cityId:
+          Number(cityId),
+
+      },
+
+    });
+
+    await prisma.vendorStat.deleteMany({
+  where: {
+    vendorId,
+  },
+});
+
+if (stats?.length) {
+
+  await prisma.vendorStat.createMany({
+
+    data: stats.map(
+      (stat) => ({
+
+        vendorId,
+
+        templateId:
+          stat.templateId,
+
+        value:
+          stat.value,
+
+      })
+    ),
+
+  });
+
+}
+
+await prisma.vendorAmenity.deleteMany({
+
+  where: {
+    vendorId,
+  },
+
+});
+
+if (amenities?.length) {
+
+  await prisma.vendorAmenity.createMany({
+
+    data: amenities.map(
+      (amenityId) => ({
+
+        vendorId,
+
+        amenityId,
+
+      })
+    ),
+
+  });
+
+}
+
+const existingPackages =
+  await prisma.vendorPackage.findMany({
+
+    where: {
+      vendorId,
+    },
+
+    select: {
+      id: true,
+    },
+
+  });
+
+  const packageIds =
+  existingPackages.map(
+    (p) => p.id
+  );
+
+if (packageIds.length) {
+
+  await prisma.vendorPackageFeature.deleteMany({
+
+    where: {
+
+      packageId: {
+        in: packageIds,
+      },
+
+    },
+
+  });
+
+}
+
+await prisma.vendorPackage.deleteMany({
+
+  where: {
+    vendorId,
+  },
+
+});
+
+if (packages?.length) {
+
+  for (const pkg of packages) {
+
+    const vendorPackage =
+      await prisma.vendorPackage.create({
+
+        data: {
+
+          vendorId,
+
+          packageTemplateId:
+            pkg.packageTemplateId,
+
+          price:
+            pkg.price,
+
+        },
+
+      });
+
+    if (pkg.features?.length) {
+
+      await prisma.vendorPackageFeature.createMany({
+
+        data: pkg.features.map(
+          (featureId) => ({
+
+            packageId:
+              vendorPackage.id,
+
+            featureId,
+
+          })
+        ),
+
+      });
+
+    }
+
+  }
+
+}
+
+    res.json({
+      message:
+        "Vendor updated",
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message:
+        error.message,
+    });
+
+  }
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
   getVendorBySlug,
   createReview,
   deleteVendor,
+  getVendorById,
+  updateVendor,
 }

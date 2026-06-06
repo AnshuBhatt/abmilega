@@ -1,4 +1,5 @@
 import DeleteVendorButton from "@/components/DeleteVendorButton";
+import Link from "next/link";
 
 async function getVendors() {
 
@@ -51,7 +52,17 @@ export default async function VendorsPage() {
               {vendor.city.name}
             </p>
 
-            
+            <Link
+  href={`/admin/vendors/${vendor.id}/edit`}
+>
+
+  <button>
+    Edit
+  </button>
+
+</Link>
+
+          <br/>  
       <DeleteVendorButton
     vendorId={vendor.id}
   />
