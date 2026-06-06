@@ -65,7 +65,12 @@ export default async function VendorsPage() {
           <br/>  
       <DeleteVendorButton
     vendorId={vendor.id}
-  />
+  /> <br/>
+  <a
+  href={`/admin/vendors/${vendor.id}/analytics`}
+>
+  Analytics
+</a>
 
           </div>
 

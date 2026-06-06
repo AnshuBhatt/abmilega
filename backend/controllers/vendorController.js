@@ -729,6 +729,33 @@ const getVendorAnalytics = async (
 
 };
 
+const getVendorEvents = async (
+  req,
+  res
+) => {
+
+  const { id } = req.params;
+
+  const events =
+    await prisma.vendorEvent.findMany({
+
+      where: {
+        vendorId:
+          Number(id),
+      },
+
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      take: 50,
+
+    });
+
+  res.json(events);
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -738,4 +765,5 @@ module.exports = {
   getVendorById,
   updateVendor,
   getVendorAnalytics,
+  getVendorEvents,
 }
