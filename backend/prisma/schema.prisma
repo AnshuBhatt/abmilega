@@ -83,11 +83,12 @@ model Vendor {
   category Category @relation(fields: [categoryId], references: [id])
   city     City     @relation(fields: [cityId], references: [id])
 
-  stats     VendorStat[]
-  amenities VendorAmenity[]
-  packages  VendorPackage[]
-  reviews   VendorReview[]
-  events    VendorEvent[]
+  stats        VendorStat[]
+  amenities    VendorAmenity[]
+  packages     VendorPackage[]
+  reviews      VendorReview[]
+  events       VendorEvent[]
+  savedByUsers UserSavedVendor[]
 
   showPackages Boolean @default(false)
 
@@ -272,4 +273,62 @@ model VendorEvent {
 
   @@index([vendorId])
   @@index([eventType])
+}
+
+enum UserRole {
+  CUSTOMER
+  VENDOR
+  ADMIN
+}
+
+model User {
+  id Int @id @default(autoincrement())
+
+  name String?
+
+  email String? @unique
+
+  phone String? @unique
+
+  password String?
+
+  googleId String? @unique
+
+  role UserRole @default(CUSTOMER)
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  savedVendors UserSavedVendor[]
+}
+
+model OtpVerification {
+  id Int @id @default(autoincrement())
+
+  phone String
+
+  otp String
+
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+
+  @@index([phone])
+}
+
+model UserSavedVendor {
+  id Int @id @default(autoincrement())
+
+  userId Int
+
+  vendorId Int
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@unique([userId, vendorId])
 }
