@@ -278,9 +278,108 @@ const getVendorBySlug = async (req, res) => {
 
 };
 
+const deleteVendor = async (req, res) => {
+
+  try {
+
+    const vendorId =
+      Number(req.params.id);
+
+    const packages =
+      await prisma.vendorPackage.findMany({
+
+        where: {
+          vendorId,
+        },
+
+        select: {
+          id: true,
+        },
+
+      });
+
+    const packageIds =
+      packages.map(
+        (p) => p.id
+      );
+
+    if (packageIds.length) {
+
+      await prisma.vendorPackageFeature.deleteMany({
+
+        where: {
+
+          packageId: {
+            in: packageIds,
+          },
+
+        },
+
+      });
+
+    }
+
+    await prisma.vendorPackage.deleteMany({
+
+      where: {
+        vendorId,
+      },
+
+    });
+
+    await prisma.vendorStat.deleteMany({
+
+      where: {
+        vendorId,
+      },
+
+    });
+
+    await prisma.vendorAmenity.deleteMany({
+
+      where: {
+        vendorId,
+      },
+
+    });
+
+    await prisma.vendorReview.deleteMany({
+
+      where: {
+        vendorId,
+      },
+
+    });
+
+    await prisma.vendor.delete({
+
+      where: {
+        id: vendorId,
+      },
+
+    });
+
+    res.json({
+      message:
+        "Vendor deleted successfully",
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+
+  }
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
   getVendorBySlug,
   createReview,
+  deleteVendor,
 }

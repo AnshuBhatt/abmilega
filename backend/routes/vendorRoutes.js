@@ -6,6 +6,7 @@ const {
   createVendor,
   getVendorBySlug,
   createReview,
+  deleteVendor
 } = require("../controllers/vendorController");
 
 
@@ -19,6 +20,11 @@ router.post("/", createVendor);
 router.post(
   "/:vendorId/reviews",
   createReview
+);
+
+router.delete(
+  "/:id",
+  deleteVendor
 );
 
 

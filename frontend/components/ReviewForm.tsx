@@ -1,145 +1,151 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ReviewForm({
-  vendorId,
+    vendorId,
 }: {
-  vendorId: number;
+    vendorId: number;
 }) {
 
-  const [reviewerName, setReviewerName] =
-    useState("");
+    const [reviewerName, setReviewerName] =
+        useState("");
 
-  const [rating, setRating] =
-    useState("5");
+    const [rating, setRating] =
+        useState("5");
 
-  const [comment, setComment] =
-    useState("");
+    const [comment, setComment] =
+        useState("");
+    const router = useRouter();
 
-  async function submitReview() {
+    async function submitReview() {
 
-  const payload = {
+        const payload = {
 
-    reviewerName,
+            reviewerName,
 
-    rating,
+            rating,
 
-    comment,
+            comment,
 
-  };
+        };
 
-  const res = await fetch(
+        const res = await fetch(
 
-    `http://localhost:5000/vendors/${vendorId}/reviews`,
+            `http://localhost:5000/vendors/${vendorId}/reviews`,
 
-    {
+            {
 
-      method: "POST",
+                method: "POST",
 
-      headers: {
-        "Content-Type":
-          "application/json",
-      },
+                headers: {
+                    "Content-Type":
+                        "application/json",
+                },
 
-      body: JSON.stringify(
-        payload
-      ),
+                body: JSON.stringify(
+                    payload
+                ),
+
+            }
+
+        );
+
+        const data =
+            await res.json();
+
+        console.log(data);
+
+        alert(
+            "Review submitted successfully!"
+        );
+        setReviewerName("");
+        setRating("5");
+        setComment("");
+        console.log(
+  "Refreshing page..."
+);
+        router.refresh();
 
     }
 
-  );
+    return (
 
-  const data =
-    await res.json();
+        <div>
 
-  console.log(data);
+            <h3>
+                Leave A Review
+            </h3>
 
-  alert(
-    "Review submitted successfully!"
-  );
-  setReviewerName("");
-setRating("5");
-setComment("");
+            <input
+                placeholder="Your Name"
+                value={reviewerName}
+                onChange={(e) =>
+                    setReviewerName(
+                        e.target.value
+                    )
+                }
+            />
 
-}
+            <br />
+            <br />
 
-  return (
+            <select
+                value={rating}
+                onChange={(e) =>
+                    setRating(
+                        e.target.value
+                    )
+                }
+            >
 
-    <div>
+                <option value="5">
+                    5 Stars
+                </option>
 
-      <h3>
-        Leave A Review
-      </h3>
+                <option value="4">
+                    4 Stars
+                </option>
 
-      <input
-        placeholder="Your Name"
-        value={reviewerName}
-        onChange={(e) =>
-          setReviewerName(
-            e.target.value
-          )
-        }
-      />
+                <option value="3">
+                    3 Stars
+                </option>
 
-      <br />
-      <br />
+                <option value="2">
+                    2 Stars
+                </option>
 
-      <select
-        value={rating}
-        onChange={(e) =>
-          setRating(
-            e.target.value
-          )
-        }
-      >
+                <option value="1">
+                    1 Star
+                </option>
 
-        <option value="5">
-          5 Stars
-        </option>
+            </select>
 
-        <option value="4">
-          4 Stars
-        </option>
+            <br />
+            <br />
 
-        <option value="3">
-          3 Stars
-        </option>
+            <textarea
+                placeholder="Write your review"
+                value={comment}
+                onChange={(e) =>
+                    setComment(
+                        e.target.value
+                    )
+                }
+            />
 
-        <option value="2">
-          2 Stars
-        </option>
+            <br />
+            <br />
 
-        <option value="1">
-          1 Star
-        </option>
+            <button
+                onClick={submitReview}
+            >
+                Submit Review
+            </button>
 
-      </select>
+        </div>
 
-      <br />
-      <br />
-
-      <textarea
-        placeholder="Write your review"
-        value={comment}
-        onChange={(e) =>
-          setComment(
-            e.target.value
-          )
-        }
-      />
-
-      <br />
-      <br />
-
-      <button
-        onClick={submitReview}
-      >
-        Submit Review
-      </button>
-
-    </div>
-
-  );
+    );
 
 }
