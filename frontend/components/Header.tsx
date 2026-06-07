@@ -65,6 +65,9 @@ export default function Header() {
           {user.phone}
 
           {" | "}
+          <a href="/vendor-dashboard">
+  Vendor Dashboard
+</a> {" | "}
 
           
       <a href="/saved-vendors">

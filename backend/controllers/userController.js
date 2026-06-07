@@ -44,8 +44,51 @@ const prisma =
 
 };
 
+const getMyVendors =
+  async (req, res) => {
+
+    try {
+
+      const vendors =
+        await prisma.vendor.findMany({
+
+          where: {
+
+            ownerId:
+              req.user.userId,
+
+          },
+
+          include: {
+
+            city: true,
+
+            category: true,
+
+          },
+
+        });
+
+      res.json(vendors);
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        message:
+          error.message,
+
+      });
+
+    }
+
+};
+
 module.exports = {
 
   getMySavedVendors,
+  getMyVendors,
 
 };

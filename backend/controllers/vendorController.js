@@ -1021,6 +1021,142 @@ const rejectVendor =
 
 };
 
+const getVendorCompletion = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } =
+      req.params;
+
+    const vendor =
+      await prisma.vendor.findUnique({
+
+        where: {
+          id: Number(id),
+        },
+
+        include: {
+
+          amenities: true,
+
+          packages: true,
+
+          stats: true,
+
+        },
+
+      });
+
+    if (!vendor) {
+
+      return res.status(404)
+        .json({
+
+          message:
+            "Vendor not found",
+
+        });
+
+    }
+
+    let completion = 0;
+
+    const missing = [];
+
+    if (vendor.name) {
+
+      completion += 10;
+
+    } else {
+
+      missing.push("Name");
+
+    }
+
+    if (vendor.description) {
+
+      completion += 20;
+
+    } else {
+
+      missing.push("Description");
+
+    }
+
+    if (vendor.imageUrl) {
+
+      completion += 20;
+
+    } else {
+
+      missing.push("Image");
+
+    }
+
+    if (vendor.whatsapp) {
+
+      completion += 10;
+
+    } else {
+
+      missing.push("WhatsApp");
+
+    }
+
+    if (
+      vendor.amenities.length > 0
+    ) {
+
+      completion += 20;
+
+    } else {
+
+      missing.push(
+        "Amenities"
+      );
+
+    }
+
+    if (
+      vendor.packages.length > 0
+    ) {
+
+      completion += 20;
+
+    } else {
+
+      missing.push(
+        "Packages"
+      );
+
+    }
+
+    res.json({
+
+      completion,
+
+      missing,
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      message:
+        error.message,
+
+    });
+
+  }
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -1038,4 +1174,5 @@ module.exports = {
   getPendingVendors,
   approveVendor,
   rejectVendor,
+  getVendorCompletion,
 }

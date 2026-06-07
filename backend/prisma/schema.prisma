@@ -90,6 +90,10 @@ model Vendor {
   events       VendorEvent[]
   savedByUsers UserSavedVendor[]
 
+  ownerId Int?
+
+  owner User? @relation(fields: [ownerId],references: [id])
+
   showPackages Boolean @default(false)
   status VendorStatus @default(PENDING)
 
@@ -302,6 +306,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   savedVendors UserSavedVendor[]
+
+  ownedVendors Vendor[]
 }
 
 model OtpVerification {

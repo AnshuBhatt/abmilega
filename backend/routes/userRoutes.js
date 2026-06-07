@@ -11,6 +11,7 @@ const authMiddleware =
 
 const {
   getMySavedVendors,
+  getMyVendors
 } = require(
   "../controllers/userController"
 );
@@ -22,6 +23,16 @@ router.get(
   authMiddleware,
 
   getMySavedVendors
+
+);
+
+router.get(
+
+  "/me/vendors",
+
+  authMiddleware,
+
+  getMyVendors
 
 );
 

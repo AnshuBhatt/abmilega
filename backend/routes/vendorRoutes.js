@@ -18,6 +18,7 @@ const {
   getPendingVendors,
   approveVendor,
   rejectVendor,
+  getVendorCompletion,
 } = require("../controllers/vendorController");
 
 const {
@@ -58,6 +59,11 @@ router.put(
 router.put(
   "/:id/reject",
   rejectVendor
+);
+
+router.get(
+  "/:id/completion",
+  getVendorCompletion
 );
 
 router.get(
