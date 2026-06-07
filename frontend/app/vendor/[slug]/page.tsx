@@ -25,10 +25,26 @@ export default async function VendorPage({
     const { slug } = await params;
 
     const vendor = await getVendor(slug);
+    if (
+  !vendor ||
+  vendor.error
+) {
 
-    <VendorViewTracker
-  vendorId={vendor.id}
-/>
+  return (
+
+    <div>
+
+      <h1>
+        Vendor not found
+      </h1>
+
+    </div>
+
+  );
+
+}
+
+    
 async function trackEvent(
   eventType: string
 ) {

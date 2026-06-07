@@ -14,6 +14,10 @@ const {
   saveVendor,
   isVendorSaved,
   unsaveVendor,
+  submitVendor,
+  getPendingVendors,
+  approveVendor,
+  rejectVendor,
 } = require("../controllers/vendorController");
 
 const {
@@ -32,8 +36,28 @@ router.get("/", getVendors);
 router.post("/", createVendor);
 
 router.post(
+  "/submit",
+  submitVendor
+);
+
+router.post(
   "/:vendorId/reviews",
   createReview
+);
+
+router.get(
+  "/pending",
+  getPendingVendors
+);
+
+router.put(
+  "/:id/approve",
+  approveVendor
+);
+
+router.put(
+  "/:id/reject",
+  rejectVendor
 );
 
 router.get(

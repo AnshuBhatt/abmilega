@@ -91,6 +91,7 @@ model Vendor {
   savedByUsers UserSavedVendor[]
 
   showPackages Boolean @default(false)
+  status VendorStatus @default(PENDING)
 
   createdAt DateTime @default(now())
 
@@ -331,4 +332,10 @@ model UserSavedVendor {
   vendor Vendor @relation(fields: [vendorId], references: [id])
 
   @@unique([userId, vendorId])
+}
+
+enum VendorStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

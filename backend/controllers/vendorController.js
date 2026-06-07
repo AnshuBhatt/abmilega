@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 const getVendors = async (req, res) => {
   const { category, city, elite } = req.query;
 
-  const where = {};
+  const where = { status: "APPROVED",};
 
   if (category) {
     where.category = {
@@ -28,6 +28,7 @@ const getVendors = async (req, res) => {
     include: {
       category: true,
       city: true,
+      
     },
   });
 
@@ -134,7 +135,7 @@ const createVendor = async (req, res) => {
           startingPrice,
           pricingUnit,
 
-
+          status: "APPROVED",
 
           categoryId: Number(categoryId),
           cityId: Number(cityId),
@@ -216,6 +217,42 @@ const createVendor = async (req, res) => {
   }
 };
 
+const submitVendor =
+  async (req, res) => {
+
+    try {
+
+      const vendor =
+        await prisma.vendor.create({
+
+          data: {
+
+            ...req.body,
+
+            status:
+              "PENDING",
+
+          },
+
+        });
+
+      res.status(201)
+        .json(vendor);
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+
+        message:
+          error.message,
+
+      });
+
+    }
+
+};
 const getVendorBySlug = async (req, res) => {
 
   const { slug } = req.params;
@@ -224,6 +261,8 @@ const getVendorBySlug = async (req, res) => {
 
     where: {
       slug,
+       status:
+        "APPROVED",
     },
 
     include: {
@@ -269,10 +308,15 @@ const getVendorBySlug = async (req, res) => {
   });
 
   if (!vendor) {
-    return res.status(404).json({
-      message: "Vendor not found",
+
+  return res
+    .status(404)
+    .json({
+      error:
+        "Vendor not found"
     });
-  }
+
+}
 
   res.json(vendor);
 
@@ -902,6 +946,81 @@ const unsaveVendor = async (
 
 };
 
+const getPendingVendors =
+  async (req, res) => {
+
+    const vendors =
+      await prisma.vendor.findMany({
+
+        where: {
+
+          status:
+            "PENDING",
+
+        },
+
+        include: {
+
+          city: true,
+
+          category: true,
+
+        },
+
+      });
+
+    res.json(vendors);
+
+};
+
+const approveVendor =
+  async (req, res) => {
+
+    const { id } =
+      req.params;
+
+    const vendor =
+      await prisma.vendor.update({
+
+        where: {
+          id: Number(id),
+        },
+
+        data: {
+          status:
+            "APPROVED",
+        },
+
+      });
+
+    res.json(vendor);
+
+};
+
+const rejectVendor =
+  async (req, res) => {
+
+    const { id } =
+      req.params;
+
+    const vendor =
+      await prisma.vendor.update({
+
+        where: {
+          id: Number(id),
+        },
+
+        data: {
+          status:
+            "REJECTED",
+        },
+
+      });
+
+    res.json(vendor);
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -915,4 +1034,8 @@ module.exports = {
   saveVendor,
   isVendorSaved,
   unsaveVendor,
+  submitVendor,
+  getPendingVendors,
+  approveVendor,
+  rejectVendor,
 }
