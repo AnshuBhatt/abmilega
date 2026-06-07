@@ -7,6 +7,9 @@ const prisma =
 const jwt =
   require("jsonwebtoken");
 
+  const JWT_SECRET =
+  "abmilega-secret";
+
   const sendOtp = async (
   req,
   res

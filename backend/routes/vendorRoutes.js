@@ -10,7 +10,8 @@ const {
   getVendorById,
   updateVendor,
   getVendorAnalytics,
-  getVendorEvents
+  getVendorEvents,
+  saveVendor,
 } = require("../controllers/vendorController");
 
 const {
@@ -18,6 +19,11 @@ const {
 } = require(
   "../controllers/vendorEventController"
 );
+
+const authMiddleware =
+  require(
+    "../middleware/authMiddleware"
+  );
 
 router.get("/", getVendors);
 
@@ -48,6 +54,13 @@ router.get(
   getVendorEvents
 );
 
+router.post(
+  "/:id/save",
+
+  authMiddleware,
+
+  saveVendor
+);
 router.get("/:slug", getVendorBySlug);
 
 router.put(

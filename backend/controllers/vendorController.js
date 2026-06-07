@@ -756,6 +756,51 @@ const getVendorEvents = async (
 
 };
 
+const saveVendor = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } =
+      req.params;
+
+    const userId =
+      req.user.userId;
+
+    const savedVendor =
+      await prisma.userSavedVendor.create({
+
+        data: {
+
+          userId,
+
+          vendorId:
+            Number(id),
+
+        },
+
+      });
+
+    res.status(201)
+      .json(savedVendor);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      message:
+        error.message,
+
+    });
+
+  }
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -766,4 +811,5 @@ module.exports = {
   updateVendor,
   getVendorAnalytics,
   getVendorEvents,
+  saveVendor,
 }

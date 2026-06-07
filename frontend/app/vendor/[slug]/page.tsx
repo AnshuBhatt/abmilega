@@ -2,6 +2,7 @@ import ReviewForm from "@/components/ReviewForm";
 
 import VendorViewTracker from "@/components/VendorViewTracker";
 import TrackedLink from "@/components/TrackedLink";
+import SaveVendorButton from "@/components/SaveVendorButton";
 
 async function getVendor(slug: string) {
     const res = await fetch(
@@ -260,6 +261,11 @@ async function trackEvent(
   </button>
 </TrackedLink>
             </div>
+
+            <SaveVendorButton
+  vendorId={vendor.id}
+/>
+
             <hr />
 
             <h2>Vendor Details</h2>

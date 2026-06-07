@@ -24,5 +24,23 @@ router.post(
   verifyOtp
 );
 
+const authMiddleware =
+  require(
+    "../middleware/authMiddleware"
+  );
+
+  router.get(
+  "/me",
+  authMiddleware,
+
+  (req, res) => {
+
+    res.json(
+      req.user
+    );
+
+  }
+);
+
 module.exports =
   router;
