@@ -66,6 +66,14 @@ export default function Header() {
 
           {" | "}
 
+          
+      <a href="/saved-vendors">
+  Saved Vendors
+</a>
+
+{" | "}
+
+
           <button
             onClick={logout}
           >
@@ -81,6 +89,7 @@ export default function Header() {
         </a>
 
       )}
+
 
     </div>
 

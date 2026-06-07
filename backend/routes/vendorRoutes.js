@@ -12,6 +12,8 @@ const {
   getVendorAnalytics,
   getVendorEvents,
   saveVendor,
+  isVendorSaved,
+  unsaveVendor,
 } = require("../controllers/vendorController");
 
 const {
@@ -61,6 +63,27 @@ router.post(
 
   saveVendor
 );
+
+router.get(
+
+  "/:id/is-saved",
+
+  authMiddleware,
+
+  isVendorSaved
+
+);
+
+router.delete(
+
+  "/:id/save",
+
+  authMiddleware,
+
+  unsaveVendor
+
+);
+
 router.get("/:slug", getVendorBySlug);
 
 router.put(

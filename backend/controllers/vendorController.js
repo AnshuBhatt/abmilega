@@ -801,6 +801,107 @@ const saveVendor = async (
 
 };
 
+const isVendorSaved = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } =
+      req.params;
+
+    const savedVendor =
+      await prisma.userSavedVendor.findUnique({
+
+        where: {
+
+          userId_vendorId: {
+
+            userId:
+              req.user.userId,
+
+            vendorId:
+              Number(id),
+
+          },
+
+        },
+
+      });
+
+    res.json({
+
+      saved:
+        !!savedVendor,
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      message:
+        error.message,
+
+    });
+
+  }
+
+};
+
+const unsaveVendor = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const { id } =
+      req.params;
+
+    await prisma.userSavedVendor.delete({
+
+      where: {
+
+        userId_vendorId: {
+
+          userId:
+            req.user.userId,
+
+          vendorId:
+            Number(id),
+
+        },
+
+      },
+
+    });
+
+    res.json({
+
+      message:
+        "Vendor removed",
+
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      message:
+        error.message,
+
+    });
+
+  }
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -812,4 +913,6 @@ module.exports = {
   getVendorAnalytics,
   getVendorEvents,
   saveVendor,
+  isVendorSaved,
+  unsaveVendor,
 }
