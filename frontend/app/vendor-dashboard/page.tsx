@@ -282,10 +282,10 @@ async function loadAnalytics(
             </p>
 
             <a
-              href={`/admin/vendors/${vendor.id}/edit`}
-            >
-              Edit Business
-            </a>
+ href={`/vendor-dashboard/vendors/${vendor.id}/edit`}
+>
+  Edit
+</a>
 
           </div>
 

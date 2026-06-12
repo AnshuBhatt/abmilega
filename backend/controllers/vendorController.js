@@ -1195,6 +1195,42 @@ const getVendorCompletion = async (
 
 };
 
+const checkVendorOwnership =
+  async (req, res) => {
+
+    const vendor =
+      await prisma.vendor.findUnique({
+
+        where: {
+          id:
+            Number(
+              req.params.id
+            ),
+        },
+
+      });
+
+    if (
+      vendor.ownerId !==
+      req.user.userId
+    ) {
+
+      return res.status(403)
+        .json({
+
+          message:
+            "Forbidden",
+
+        });
+
+    }
+
+    res.json({
+      success: true,
+    });
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -1213,4 +1249,5 @@ module.exports = {
   approveVendor,
   rejectVendor,
   getVendorCompletion,
+  checkVendorOwnership,
 }
