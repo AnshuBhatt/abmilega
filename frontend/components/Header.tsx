@@ -74,7 +74,9 @@ export default function Header() {
   Saved Vendors
 </a>
 
-{" | "}
+{" | "} <a href="/list-my-business">
+  List My Business
+</a> {" | "}
 
 
           <button

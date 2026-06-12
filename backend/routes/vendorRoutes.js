@@ -37,8 +37,13 @@ router.get("/", getVendors);
 router.post("/", createVendor);
 
 router.post(
+
   "/submit",
+
+  authMiddleware,
+
   submitVendor
+
 );
 
 router.post(

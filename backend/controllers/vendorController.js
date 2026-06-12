@@ -217,40 +217,78 @@ const createVendor = async (req, res) => {
   }
 };
 
-const submitVendor =
-  async (req, res) => {
+const submitVendor = async (
+  req,
+  res
+) => {
 
-    try {
+  try {
 
-      const vendor =
-        await prisma.vendor.create({
+    const {
 
-          data: {
+      name,
+      description,
 
-            ...req.body,
+      phone,
+      whatsapp,
 
-            status:
-              "PENDING",
+      categoryId,
+      cityId,
 
-          },
+    } = req.body;
 
-        });
+    const slug =
+      name
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-");
 
-      res.status(201)
-        .json(vendor);
+    const vendor =
+      await prisma.vendor.create({
 
-    } catch (error) {
+        data: {
 
-      console.error(error);
+          name,
 
-      res.status(500).json({
+          slug,
 
-        message:
-          error.message,
+          description,
+
+          phone,
+
+          whatsapp,
+
+          categoryId:
+            Number(categoryId),
+
+          cityId:
+            Number(cityId),
+
+          status:
+            "PENDING",
+
+          ownerId:
+            req.user.userId,
+
+        },
 
       });
 
-    }
+    res.status(201)
+      .json(vendor);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      message:
+        error.message,
+
+    });
+
+  }
 
 };
 const getVendorBySlug = async (req, res) => {
