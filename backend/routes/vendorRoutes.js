@@ -19,6 +19,7 @@ const {
   approveVendor,
   rejectVendor,
   getVendorCompletion,
+  checkVendorOwnership,
 } = require("../controllers/vendorController");
 
 const {
@@ -44,6 +45,12 @@ router.post(
 
   submitVendor
 
+);
+
+router.get(
+  "/:id/owner-check",
+  authMiddleware,
+  checkVendorOwnership
 );
 
 router.post(

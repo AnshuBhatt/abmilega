@@ -366,6 +366,15 @@ const deleteVendor = async (req, res) => {
 
     const vendorId =
       Number(req.params.id);
+      if (
+  vendor.ownerId &&
+  vendor.ownerId !== req.user.userId &&
+  req.user.role !== "ADMIN"
+) {
+  return res.status(403).json({
+    message: "Forbidden",
+  });
+}
 
     const packages =
       await prisma.vendorPackage.findMany({
@@ -499,6 +508,16 @@ const getVendorById = async (req, res) => {
 
   }
 
+  if (
+  vendor.ownerId &&
+  vendor.ownerId !== req.user.userId &&
+  req.user.role !== "ADMIN"
+) {
+  return res.status(403).json({
+    message: "Forbidden",
+  });
+}
+
   res.json(vendor);
 
 };
@@ -540,6 +559,16 @@ const updateVendor = async (req, res) => {
 
     const vendorId =
       Number(id);
+
+      if (
+  vendor.ownerId &&
+  vendor.ownerId !== req.user.userId &&
+  req.user.role !== "ADMIN"
+) {
+  return res.status(403).json({
+    message: "Forbidden",
+  });
+}
 
     await prisma.vendor.update({
 
@@ -1209,6 +1238,16 @@ const checkVendorOwnership =
         },
 
       });
+
+       if (!vendor) {
+
+      return res.status(404)
+        .json({
+          message:
+            "Vendor not found",
+        });
+
+    }
 
     if (
       vendor.ownerId !==
