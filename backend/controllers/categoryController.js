@@ -54,9 +54,30 @@ const getOnboardingConfig = async (req, res) => {
           amenity: true,
         },
       },
+      packageTemplates: {
+      orderBy: {
+        sortOrder: "asc",
+      },
     },
+
+    },
+    
+    
   });
 
+const packageFeatureTemplates =
+  await prisma.categoryPackageFeatureTemplate.findMany({
+
+    where: {
+      categoryId: Number(id),
+    },
+
+    include: {
+      feature: true,
+    },
+
+  });
+console.log(category.packageTemplates);
   res.json({
     id: category.id,
     name: category.name,
@@ -67,6 +88,14 @@ const getOnboardingConfig = async (req, res) => {
       category.amenityTemplates.map(
         (item) => item.amenity
       ),
+
+      packageTemplates:
+    category.packageTemplates,
+
+ packageFeatureTemplates:
+  packageFeatureTemplates.map(
+    (item) => item.feature
+  ),
   });
 };
 

@@ -1,4 +1,8 @@
+import ReviewForm from "@/components/ReviewForm";
 
+import VendorViewTracker from "@/components/VendorViewTracker";
+import TrackedLink from "@/components/TrackedLink";
+import SaveVendorButton from "@/components/SaveVendorButton";
 
 async function getVendor(slug: string) {
     const res = await fetch(
@@ -11,6 +15,8 @@ async function getVendor(slug: string) {
     return res.json();
 }
 
+
+
 export default async function VendorPage({
     params,
 }: {
@@ -19,9 +25,58 @@ export default async function VendorPage({
     const { slug } = await params;
 
     const vendor = await getVendor(slug);
+    if (
+  !vendor ||
+  vendor.error
+) {
 
+  return (
+
+    <div>
+
+      <h1>
+        Vendor not found
+      </h1>
+
+    </div>
+
+  );
+
+}
+
+    
+async function trackEvent(
+  eventType: string
+) {
+
+  await fetch(
+
+    `http://localhost:5000/vendors/${vendor.id}/events`,
+
+    {
+
+      method: "POST",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        eventType,
+      }),
+
+    }
+
+  );
+
+}
     return (
+        
         <div style={{ padding: "20px" }}>
+            <VendorViewTracker
+  vendorId={vendor.id}
+/>
             {vendor.imageUrl && (
                 <img
                     src={vendor.imageUrl}
@@ -31,6 +86,44 @@ export default async function VendorPage({
             )}
 
             <h1>{vendor.name}</h1>
+
+            <h2>
+                Business Information
+            </h2>
+
+            <p>
+                📍 {vendor.address}
+            </p>
+
+            <p>
+                📍 {vendor.city.name}
+            </p>
+
+            <p>
+                📮 {vendor.zipcode}
+            </p>
+
+            {vendor.address && (
+
+               <TrackedLink
+  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${vendor.name} ${vendor.address} ${vendor.zipcode ?? ""}`
+  )}`}
+  vendorId={vendor.id}
+  eventType="MAP_CLICK"
+>
+  <button>
+    📍 Open in Google Maps
+  </button>
+</TrackedLink>
+            )}
+
+            <p>
+                💰 Starting From ₹
+                {vendor.startingPrice}
+                {" "}
+                {vendor.pricingUnit}
+            </p>
 
             {vendor.isElite && (
                 <p>
@@ -42,17 +135,11 @@ export default async function VendorPage({
                 ⭐ {vendor.rating}
             </p>
 
-            <p>
-                📍 {vendor.city.name}
-            </p>
 
             <p>
                 🏷 {vendor.category.name}
             </p>
 
-            <p>
-                {vendor.description}
-            </p>
 
             <h2>Stats</h2>
 
@@ -77,27 +164,92 @@ export default async function VendorPage({
                     )
                 )}
             </div>
-
-            <h2>Packages</h2>
-
-            {vendor.packages.map((pkg: any) => (
-            <div key={pkg.id}>
-
-                <h3>
-                {pkg.packageTemplate.name}
-                </h3>
-
-                <p>{pkg.price}</p>
-
-                {pkg.features.map((f: any) => (
-                <p key={f.feature.id}>
-                    ✓ {f.feature.name}
+            <h2>
+                Online Presence
+            </h2>
+            {vendor.websiteUrl && (
+                <p>
+                    🌐
+                    <a
+                        href={vendor.websiteUrl}
+                        target="_blank"
+                    >
+                        Website
+                    </a>
                 </p>
-                ))}
+            )}
+            {vendor.instagramUrl && (
+                <p>
+                    📸
+                    <a
+                        href={vendor.instagramUrl}
+                        target="_blank"
+                    >
+                        Instagram
+                    </a>
+                </p>
+            )}
 
-            </div>
-            ))}
+            <p>
+                showPackages:
+                {String(vendor.showPackages)}
+            </p>
 
+            <p>
+                package count:
+                {vendor.packages.length}
+            </p>
+
+            {
+                vendor.packages.length > 0 && (
+
+                    <>
+                        <h2>Packages</h2>
+
+                        {vendor.packages.map((pkg: any) => (
+
+                            <div
+                                key={pkg.id}
+                                style={{
+                                    border: "1px solid #ddd",
+                                    padding: "20px",
+                                    marginBottom: "20px",
+                                    borderRadius: "10px",
+                                }}
+                            >
+
+                                <h3>
+                                    {pkg.packageTemplate.name}
+                                </h3>
+
+                                <h2>
+                                    ₹ {Number(pkg.price).toLocaleString()}
+                                </h2>
+
+                                <h4>
+                                    Included Features
+                                </h4>
+
+                                {pkg.features.map(
+                                    (f: any) => (
+
+                                        <p
+                                            key={
+                                                f.feature.id
+                                            }
+                                        >
+                                            ✓ {f.feature.name}
+                                        </p>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        ))}
+                    </>
+
+                )}
             <div
                 style={{
                     marginTop: "20px",
@@ -105,23 +257,31 @@ export default async function VendorPage({
                     gap: "10px",
                 }}
             >
-                <a
-                    href={`tel:${vendor.phone}`}
-                >
-                    <button>
-                        📞 Call Vendor
-                    </button>
-                </a>
+                <TrackedLink
+  href={`tel:${vendor.phone}`}
+  vendorId={vendor.id}
+  eventType="CALL_CLICK"
+>
+  <button>
+    📞 Call Vendor
+  </button>
+</TrackedLink>
 
-                <a
-                    href={`https://wa.me/91${vendor.whatsapp}`}
-                    target="_blank"
-                >
-                    <button>
-                        💬 WhatsApp Vendor
-                    </button>
-                </a>
+                <TrackedLink
+  href={`https://wa.me/91${vendor.whatsapp}`}
+  vendorId={vendor.id}
+  eventType="WHATSAPP_CLICK"
+>
+  <button>
+    💬 WhatsApp Vendor
+  </button>
+</TrackedLink>
             </div>
+
+            <SaveVendorButton
+  vendorId={vendor.id}
+/>
+
             <hr />
 
             <h2>Vendor Details</h2>
@@ -134,8 +294,45 @@ export default async function VendorPage({
                 WhatsApp: {vendor.whatsapp}
             </p>
 
+            <h2>AB Milega Reviews</h2>
 
+            {vendor.reviews.length === 0 && (
+                <p>
+                    No reviews yet.
+                </p>
+            )}
 
+            {vendor.reviews.map((review: any) => (
+
+                <div
+                    key={review.id}
+                    style={{
+                        border: "1px solid #ddd",
+                        padding: "15px",
+                        marginBottom: "10px",
+                        borderRadius: "8px",
+                    }}
+                >
+
+                    <h4>
+                        {review.reviewerName}
+                    </h4>
+
+                    <p>
+                        {"⭐".repeat(review.rating)}
+                    </p>
+
+                    <p>
+                        {review.comment}
+                    </p>
+
+                </div>
+
+            ))}
+            <ReviewForm
+                vendorId={vendor.id}
+            />
         </div>
+
     );
 }

@@ -17,4 +17,5 @@ router.get(
 
 router.get("/:slug", getCategoryBySlug);
 
+
 module.exports = router;
