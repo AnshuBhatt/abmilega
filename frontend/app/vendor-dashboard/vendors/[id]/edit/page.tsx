@@ -1,5 +1,3 @@
-
-
 import VendorForm from "@/components/VendorForm";
 
 

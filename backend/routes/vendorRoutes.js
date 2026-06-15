@@ -32,6 +32,10 @@ const authMiddleware =
   require(
     "../middleware/authMiddleware"
   );
+  const adminMiddleware =
+  require(
+    "../middleware/adminMiddleware"
+  );
 
 router.get("/", getVendors);
 
@@ -60,19 +64,24 @@ router.post(
 
 router.get(
   "/pending",
+  authMiddleware,
+  adminMiddleware,
   getPendingVendors
 );
 
 router.put(
   "/:id/approve",
+  authMiddleware,
+  adminMiddleware,
   approveVendor
 );
 
 router.put(
   "/:id/reject",
+  authMiddleware,
+  adminMiddleware,
   rejectVendor
 );
-
 router.get(
   "/:id/completion",
   getVendorCompletion
@@ -80,11 +89,13 @@ router.get(
 
 router.get(
   "/id/:id",
+  authMiddleware,
   getVendorById
 );
 
 router.delete(
   "/:id",
+  authMiddleware,
   deleteVendor
 );
 
@@ -130,6 +141,7 @@ router.get("/:slug", getVendorBySlug);
 
 router.put(
   "/:id",
+  authMiddleware,
   updateVendor
 );
 

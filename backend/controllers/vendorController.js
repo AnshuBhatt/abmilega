@@ -363,10 +363,23 @@ const getVendorBySlug = async (req, res) => {
 const deleteVendor = async (req, res) => {
 
   try {
+const vendorId =
+  Number(req.params.id);
 
-    const vendorId =
-      Number(req.params.id);
-      if (
+const vendor =
+  await prisma.vendor.findUnique({
+    where: {
+      id: vendorId,
+    },
+  });
+
+if (!vendor) {
+  return res.status(404).json({
+    message: "Vendor not found",
+  });
+}
+
+if (
   vendor.ownerId &&
   vendor.ownerId !== req.user.userId &&
   req.user.role !== "ADMIN"
@@ -557,14 +570,30 @@ const updateVendor = async (req, res) => {
 
     } = req.body;
 
-    const vendorId =
-      Number(id);
+    const vendorId = Number(id);
 
-      if (
+const vendor =
+  await prisma.vendor.findUnique({
+    where: {
+      id: vendorId,
+    },
+  });
+
+if (!vendor) {
+  return res.status(404).json({
+    message: "Vendor not found",
+  });
+}
+
+if (
   vendor.ownerId &&
   vendor.ownerId !== req.user.userId &&
   req.user.role !== "ADMIN"
 ) {
+  return res.status(403).json({
+    message: "Forbidden",
+  });
+}{
   return res.status(403).json({
     message: "Forbidden",
   });

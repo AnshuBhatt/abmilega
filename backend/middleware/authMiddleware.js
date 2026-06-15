@@ -2,7 +2,7 @@ const jwt =
   require("jsonwebtoken");
 
 const JWT_SECRET =
-  "abmilega-secret";
+  process.env.JWT_SECRET;
 
 const authMiddleware =
   (req, res, next) => {
