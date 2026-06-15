@@ -70,19 +70,41 @@ export default function VendorDashboardPage() {
 
   }
 
-  async function loadCompletion(
+async function loadCompletion(
   vendorId: number
 ) {
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
 
   const res =
     await fetch(
 
-      `http://localhost:5000/vendors/${vendorId}/completion`
+      `http://localhost:5000/vendors/${vendorId}/completion`,
+
+      {
+
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+        },
+
+      }
 
     );
 
   const data =
     await res.json();
+
+  console.log(
+    "Completion",
+    vendorId,
+    data
+  );
 
   setCompletionData(
     (prev: any) => ({
@@ -100,15 +122,37 @@ async function loadAnalytics(
   vendorId: number
 ) {
 
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
   const res =
     await fetch(
 
-      `http://localhost:5000/vendors/${vendorId}/analytics`
+      `http://localhost:5000/vendors/${vendorId}/analytics`,
+
+      {
+
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+        },
+
+      }
 
     );
 
   const data =
     await res.json();
+
+  console.log(
+    "Analytics",
+    vendorId,
+    data
+  );
 
   setAnalyticsData(
     (prev: any) => ({

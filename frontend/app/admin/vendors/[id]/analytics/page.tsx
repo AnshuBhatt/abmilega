@@ -177,32 +177,43 @@ const events =
 <h2>
   Recent Activity
 </h2>
-{events.map((event: any) => (
 
-  <div
-    key={event.id}
-    style={{
-      borderBottom:
-        "1px solid #eee",
-      padding: "10px 0",
-    }}
-  >
+{Array.isArray(events) ? (
 
-    <strong>
-      {event.eventType}
-    </strong>
+  events.map((event: any) => (
 
-    <p>
-      {
-        new Date(
-          event.createdAt
-        ).toLocaleString()
-      }
-    </p>
+    <div
+      key={event.id}
+      style={{
+        borderBottom:
+          "1px solid #eee",
+        padding: "10px 0",
+      }}
+    >
 
-  </div>
+      <strong>
+        {event.eventType}
+      </strong>
 
-))}
+      <p>
+        {
+          new Date(
+            event.createdAt
+          ).toLocaleString()
+        }
+      </p>
+
+    </div>
+
+  ))
+
+) : (
+
+  <p>
+    No activity found
+  </p>
+
+)}
 
     </div>
 

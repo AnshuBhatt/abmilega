@@ -1,17 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import AdminGuard from "@/components/AdminGuard";
 
 export default function PendingVendorsPage() {
 
-  const [vendors, setVendors] =
+  const [vendors,
+    setVendors] =
     useState<any[]>([]);
 
   async function loadPendingVendors() {
 
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
     const res =
       await fetch(
-        "http://localhost:5000/vendors/pending"
+        "http://localhost:5000/vendors/pending",
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
       );
 
     const data =
@@ -31,6 +44,11 @@ export default function PendingVendorsPage() {
     vendorId: number
   ) {
 
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
     await fetch(
 
       `http://localhost:5000/vendors/${vendorId}/approve`,
@@ -38,6 +56,11 @@ export default function PendingVendorsPage() {
       {
 
         method: "PUT",
+
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
 
       }
 
@@ -51,6 +74,11 @@ export default function PendingVendorsPage() {
     vendorId: number
   ) {
 
+    const token =
+      localStorage.getItem(
+        "token"
+      );
+
     await fetch(
 
       `http://localhost:5000/vendors/${vendorId}/reject`,
@@ -58,6 +86,11 @@ export default function PendingVendorsPage() {
       {
 
         method: "PUT",
+
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
 
       }
 
@@ -69,104 +102,59 @@ export default function PendingVendorsPage() {
 
   return (
 
-    <div
-      style={{
-        padding: "20px",
-      }}
-    >
+    <AdminGuard>
 
-      <h1>
-        Pending Vendors
-      </h1>
+      <div
+        style={{
+          padding: "20px",
+        }}
+      >
 
-      {vendors.length === 0 && (
+        <h1>
+          Pending Vendors
+        </h1>
 
-        <p>
-          No pending vendors.
-        </p>
+        {vendors.map(
+          (vendor: any) => (
 
-      )}
-
-      {vendors.map(
-        (vendor: any) => (
-
-          <div
-
-            key={vendor.id}
-
-            style={{
-
-              border:
-                "1px solid #ddd",
-
-              padding:
-                "20px",
-
-              marginBottom:
-                "20px",
-
-            }}
-
-          >
-
-            <h3>
-              {vendor.name}
-            </h3>
-
-            <p>
-              Category:
-              {" "}
-              {vendor.category?.name}
-            </p>
-
-            <p>
-              City:
-              {" "}
-              {vendor.city?.name}
-            </p>
-
-            <p>
-              Status:
-              {" "}
-              {vendor.status}
-            </p>
-
-            <button
-
-              onClick={() =>
-                approveVendor(
-                  vendor.id
-                )
-              }
-
+            <div
+              key={vendor.id}
             >
 
-              Approve
+              <h3>
+                {vendor.name}
+              </h3>
 
-            </button>
+              <button
+                onClick={() =>
+                  approveVendor(
+                    vendor.id
+                  )
+                }
+              >
+                Approve
+              </button>
 
-            {" "}
+              {" "}
 
-            <button
+              <button
+                onClick={() =>
+                  rejectVendor(
+                    vendor.id
+                  )
+                }
+              >
+                Reject
+              </button>
 
-              onClick={() =>
-                rejectVendor(
-                  vendor.id
-                )
-              }
+            </div>
 
-            >
+          )
+        )}
 
-              Reject
+      </div>
 
-            </button>
-
-          </div>
-
-        )
-      )}
-
-    </div>
+    </AdminGuard>
 
   );
 

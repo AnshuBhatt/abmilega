@@ -84,6 +84,11 @@ export default function LoginPage() {
       );
 
       localStorage.setItem(
+  "hasVendor",
+  String(data.hasVendor)
+);
+
+      localStorage.setItem(
         "user",
         JSON.stringify(
           data.user

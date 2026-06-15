@@ -2,6 +2,58 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
+const verifyVendorOwnership =
+  async (
+    vendorId,
+    user
+  ) => {
+
+    const vendor =
+      await prisma.vendor.findUnique({
+
+        where: {
+          id: Number(vendorId),
+        },
+
+      });
+
+    if (!vendor) {
+
+      return {
+        error: {
+          status: 404,
+          message:
+            "Vendor not found",
+        },
+      };
+
+    }
+
+    if (
+
+      user.role !== "ADMIN" &&
+
+      vendor.ownerId !==
+        user.userId
+
+    ) {
+
+      return {
+        error: {
+          status: 403,
+          message:
+            "Forbidden",
+        },
+      };
+
+    }
+
+    return {
+      vendor,
+    };
+
+  };
+
 const getVendors = async (req, res) => {
   const { category, city, elite } = req.query;
 
@@ -79,6 +131,7 @@ const createReview = async (req, res) => {
 
 const createVendor = async (req, res) => {
   try {
+
     const {
 
       name,
@@ -108,15 +161,35 @@ const createVendor = async (req, res) => {
 
     } = req.body;
 
-    const slug = name
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, "-");
+    let slug =
+      name
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-");
+
+    const existingVendor =
+      await prisma.vendor.findUnique({
+
+        where: {
+          slug,
+        },
+
+      });
+
+    if (existingVendor) {
+
+      slug =
+        `${slug}-${Date.now()}`;
+
+    }
 
     const vendor =
       await prisma.vendor.create({
+
         data: {
+
           name,
+
           slug,
 
           description,
@@ -135,33 +208,55 @@ const createVendor = async (req, res) => {
           startingPrice,
           pricingUnit,
 
-          status: "APPROVED",
+          status:
+            "APPROVED",
 
-          categoryId: Number(categoryId),
-          cityId: Number(cityId),
+          categoryId:
+            Number(categoryId),
+
+          cityId:
+            Number(cityId),
 
           stats: {
-            create: stats.map((stat) => ({
-              templateId: stat.templateId,
-              value: stat.value,
-            })),
+
+            create:
+              (stats || []).map(
+                (stat) => ({
+
+                  templateId:
+                    stat.templateId,
+
+                  value:
+                    stat.value,
+
+                })
+              ),
+
           },
 
           amenities: {
-            create: amenities.map(
-              (amenityId) => ({
-                amenityId,
-              })
-            ),
-          },
 
+            create:
+              (amenities || []).map(
+                (amenityId) => ({
+
+                  amenityId,
+
+                })
+              ),
+
+          },
 
         },
 
         include: {
+
           stats: true,
+
           amenities: true,
+
         },
+
       });
 
     if (packages?.length) {
@@ -173,12 +268,14 @@ const createVendor = async (req, res) => {
 
             data: {
 
-              vendorId: vendor.id,
+              vendorId:
+                vendor.id,
 
               packageTemplateId:
                 pkg.packageTemplateId,
 
-              price: pkg.price,
+              price:
+                pkg.price,
 
             },
 
@@ -188,16 +285,17 @@ const createVendor = async (req, res) => {
 
           await prisma.vendorPackageFeature.createMany({
 
-            data: pkg.features.map(
-              (featureId) => ({
+            data:
+              pkg.features.map(
+                (featureId) => ({
 
-                packageId:
-                  vendorPackage.id,
+                  packageId:
+                    vendorPackage.id,
 
-                featureId,
+                  featureId,
 
-              })
-            ),
+                })
+              ),
 
           });
 
@@ -207,14 +305,38 @@ const createVendor = async (req, res) => {
 
     }
 
-    res.status(201).json(vendor);
+    res.status(201)
+      .json(vendor);
+
   } catch (error) {
+
     console.error(error);
 
-    res.status(500).json({
-      message: error.message,
-    });
+    if (
+      error.code === "P2002"
+    ) {
+
+      return res
+        .status(400)
+        .json({
+
+          message:
+            "A business with this name already exists",
+
+        });
+
+    }
+
+    res.status(500)
+      .json({
+
+        message:
+          error.message,
+
+      });
+
   }
+
 };
 
 const submitVendor = async (
@@ -237,11 +359,27 @@ const submitVendor = async (
 
     } = req.body;
 
-    const slug =
+    let slug =
       name
         .toLowerCase()
         .trim()
         .replace(/\s+/g, "-");
+
+    const existingVendor =
+      await prisma.vendor.findUnique({
+
+        where: {
+          slug,
+        },
+
+      });
+
+    if (existingVendor) {
+
+      slug =
+        `${slug}-${Date.now()}`;
+
+    }
 
     const vendor =
       await prisma.vendor.create({
@@ -281,6 +419,21 @@ const submitVendor = async (
 
     console.error(error);
 
+    if (
+      error.code === "P2002"
+    ) {
+
+      return res
+        .status(400)
+        .json({
+
+          message:
+            "A business with this name already exists",
+
+        });
+
+    }
+
     res.status(500).json({
 
       message:
@@ -291,6 +444,59 @@ const submitVendor = async (
   }
 
 };
+
+const getVendorByIdAdmin = async (
+  req,
+  res
+) => {
+
+  const vendor =
+    await prisma.vendor.findUnique({
+
+      where: {
+        id: Number(
+          req.params.id
+        ),
+      },
+
+      include: {
+
+        category: true,
+
+        city: true,
+
+        stats: true,
+
+        amenities: true,
+
+        packages: {
+          include: {
+            features: true,
+          },
+        },
+
+        reviews: true,
+
+      },
+
+    });
+
+  if (!vendor) {
+
+    return res.status(404)
+      .json({
+
+        message:
+          "Vendor not found",
+
+      });
+
+  }
+
+  res.json(vendor);
+
+};
+
 const getVendorBySlug = async (req, res) => {
 
   const { slug } = req.params;
@@ -366,27 +572,25 @@ const deleteVendor = async (req, res) => {
 const vendorId =
   Number(req.params.id);
 
-const vendor =
-  await prisma.vendor.findUnique({
-    where: {
-      id: vendorId,
-    },
-  });
+const ownership =
+  await verifyVendorOwnership(
+    req.params.id,
+    req.user
+  );
 
-if (!vendor) {
-  return res.status(404).json({
-    message: "Vendor not found",
-  });
-}
+if (ownership.error) {
 
-if (
-  vendor.ownerId &&
-  vendor.ownerId !== req.user.userId &&
-  req.user.role !== "ADMIN"
-) {
-  return res.status(403).json({
-    message: "Forbidden",
-  });
+  return res
+    .status(
+      ownership.error.status
+    )
+    .json({
+
+      message:
+        ownership.error.message,
+
+    });
+
 }
 
     const packages =
@@ -522,9 +726,11 @@ const getVendorById = async (req, res) => {
   }
 
   if (
-  vendor.ownerId &&
-  vendor.ownerId !== req.user.userId &&
-  req.user.role !== "ADMIN"
+
+  req.user.role !== "ADMIN" &&
+
+  vendor.ownerId !== req.user.userId
+
 ) {
   return res.status(403).json({
     message: "Forbidden",
@@ -539,7 +745,45 @@ const updateVendor = async (req, res) => {
 
   try {
 
-    const { id } = req.params;
+    const vendorId =
+      Number(req.params.id);
+
+    const existingVendor =
+      await prisma.vendor.findUnique({
+
+        where: {
+          id: vendorId,
+        },
+
+      });
+
+    if (!existingVendor) {
+
+      return res.status(404).json({
+
+        message:
+          "Vendor not found",
+
+      });
+
+    }
+
+    if (
+
+      req.user.role !== "ADMIN" &&
+
+      existingVendor.ownerId !== req.user.userId
+
+    ) {
+
+      return res.status(403).json({
+
+        message:
+          "Forbidden",
+
+      });
+
+    }
 
     const {
 
@@ -569,35 +813,6 @@ const updateVendor = async (req, res) => {
       packages,
 
     } = req.body;
-
-    const vendorId = Number(id);
-
-const vendor =
-  await prisma.vendor.findUnique({
-    where: {
-      id: vendorId,
-    },
-  });
-
-if (!vendor) {
-  return res.status(404).json({
-    message: "Vendor not found",
-  });
-}
-
-if (
-  vendor.ownerId &&
-  vendor.ownerId !== req.user.userId &&
-  req.user.role !== "ADMIN"
-) {
-  return res.status(403).json({
-    message: "Forbidden",
-  });
-}{
-  return res.status(403).json({
-    message: "Forbidden",
-  });
-}
 
     await prisma.vendor.update({
 
@@ -635,133 +850,27 @@ if (
     });
 
     await prisma.vendorStat.deleteMany({
-  where: {
-    vendorId,
-  },
-});
 
-if (stats?.length) {
-
-  await prisma.vendorStat.createMany({
-
-    data: stats.map(
-      (stat) => ({
-
+      where: {
         vendorId,
-
-        templateId:
-          stat.templateId,
-
-        value:
-          stat.value,
-
-      })
-    ),
-
-  });
-
-}
-
-await prisma.vendorAmenity.deleteMany({
-
-  where: {
-    vendorId,
-  },
-
-});
-
-if (amenities?.length) {
-
-  await prisma.vendorAmenity.createMany({
-
-    data: amenities.map(
-      (amenityId) => ({
-
-        vendorId,
-
-        amenityId,
-
-      })
-    ),
-
-  });
-
-}
-
-const existingPackages =
-  await prisma.vendorPackage.findMany({
-
-    where: {
-      vendorId,
-    },
-
-    select: {
-      id: true,
-    },
-
-  });
-
-  const packageIds =
-  existingPackages.map(
-    (p) => p.id
-  );
-
-if (packageIds.length) {
-
-  await prisma.vendorPackageFeature.deleteMany({
-
-    where: {
-
-      packageId: {
-        in: packageIds,
       },
 
-    },
+    });
 
-  });
+    if (stats?.length) {
 
-}
+      await prisma.vendorStat.createMany({
 
-await prisma.vendorPackage.deleteMany({
+        data: stats.map(
+          (stat) => ({
 
-  where: {
-    vendorId,
-  },
+            vendorId,
 
-});
+            templateId:
+              stat.templateId,
 
-if (packages?.length) {
-
-  for (const pkg of packages) {
-
-    const vendorPackage =
-      await prisma.vendorPackage.create({
-
-        data: {
-
-          vendorId,
-
-          packageTemplateId:
-            pkg.packageTemplateId,
-
-          price:
-            pkg.price,
-
-        },
-
-      });
-
-    if (pkg.features?.length) {
-
-      await prisma.vendorPackageFeature.createMany({
-
-        data: pkg.features.map(
-          (featureId) => ({
-
-            packageId:
-              vendorPackage.id,
-
-            featureId,
+            value:
+              stat.value,
 
           })
         ),
@@ -770,13 +879,123 @@ if (packages?.length) {
 
     }
 
-  }
+    await prisma.vendorAmenity.deleteMany({
 
-}
+      where: {
+        vendorId,
+      },
+
+    });
+
+    if (amenities?.length) {
+
+      await prisma.vendorAmenity.createMany({
+
+        data: amenities.map(
+          (amenityId) => ({
+
+            vendorId,
+
+            amenityId,
+
+          })
+        ),
+
+      });
+
+    }
+
+    const existingPackages =
+      await prisma.vendorPackage.findMany({
+
+        where: {
+          vendorId,
+        },
+
+        select: {
+          id: true,
+        },
+
+      });
+
+    const packageIds =
+      existingPackages.map(
+        (pkg) => pkg.id
+      );
+
+    if (packageIds.length) {
+
+      await prisma.vendorPackageFeature.deleteMany({
+
+        where: {
+
+          packageId: {
+            in: packageIds,
+          },
+
+        },
+
+      });
+
+    }
+
+    await prisma.vendorPackage.deleteMany({
+
+      where: {
+        vendorId,
+      },
+
+    });
+
+    if (packages?.length) {
+
+      for (const pkg of packages) {
+
+        const vendorPackage =
+          await prisma.vendorPackage.create({
+
+            data: {
+
+              vendorId,
+
+              packageTemplateId:
+                pkg.packageTemplateId,
+
+              price:
+                pkg.price,
+
+            },
+
+          });
+
+        if (pkg.features?.length) {
+
+          await prisma.vendorPackageFeature.createMany({
+
+            data: pkg.features.map(
+              (featureId) => ({
+
+                packageId:
+                  vendorPackage.id,
+
+                featureId,
+
+              })
+            ),
+
+          });
+
+        }
+
+      }
+
+    }
 
     res.json({
+
       message:
-        "Vendor updated",
+        "Vendor updated successfully",
+
     });
 
   } catch (error) {
@@ -784,8 +1003,10 @@ if (packages?.length) {
     console.error(error);
 
     res.status(500).json({
+
       message:
         error.message,
+
     });
 
   }
@@ -797,75 +1018,110 @@ const getVendorAnalytics = async (
   res
 ) => {
 
-  const { id } = req.params;
+  try {
 
-  const vendorId =
-    Number(id);
+    const ownership =
+      await verifyVendorOwnership(
+        req.params.id,
+        req.user
+      );
 
-  const events =
-    await prisma.vendorEvent.groupBy({
+    if (ownership.error) {
 
-      by: ["eventType"],
+      return res
+        .status(
+          ownership.error.status
+        )
+        .json({
+          message:
+            ownership.error.message,
+        });
 
-      where: {
-        vendorId,
-      },
+    }
 
-      _count: true,
+    const { id } =
+      req.params;
+
+    const vendorId =
+      Number(id);
+
+    const events =
+      await prisma.vendorEvent.groupBy({
+
+        by: ["eventType"],
+
+        where: {
+          vendorId,
+        },
+
+        _count: true,
+
+      });
+
+    const analytics = {
+
+      views: 0,
+
+      callClicks: 0,
+
+      whatsappClicks: 0,
+
+      mapClicks: 0,
+
+    };
+
+    events.forEach((event) => {
+
+      if (
+        event.eventType ===
+        "VIEW"
+      ) {
+        analytics.views =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "CALL_CLICK"
+      ) {
+        analytics.callClicks =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "WHATSAPP_CLICK"
+      ) {
+        analytics.whatsappClicks =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "MAP_CLICK"
+      ) {
+        analytics.mapClicks =
+          event._count;
+      }
 
     });
 
-  const analytics = {
+    res.json(
+      analytics
+    );
 
-    views: 0,
+  } catch (error) {
 
-    callClicks: 0,
+    console.error(error);
 
-    whatsappClicks: 0,
+    res.status(500).json({
 
-    mapClicks: 0,
+      message:
+        error.message,
 
-  };
+    });
 
-  events.forEach((event) => {
-
-    if (
-      event.eventType ===
-      "VIEW"
-    ) {
-      analytics.views =
-        event._count;
-    }
-
-    if (
-      event.eventType ===
-      "CALL_CLICK"
-    ) {
-      analytics.callClicks =
-        event._count;
-    }
-
-    if (
-      event.eventType ===
-      "WHATSAPP_CLICK"
-    ) {
-      analytics.whatsappClicks =
-        event._count;
-    }
-
-    if (
-      event.eventType ===
-      "MAP_CLICK"
-    ) {
-      analytics.mapClicks =
-        event._count;
-    }
-
-  });
-
-  res.json(
-    analytics
-  );
+  }
 
 };
 
@@ -874,25 +1130,67 @@ const getVendorEvents = async (
   res
 ) => {
 
-  const { id } = req.params;
+  try {
 
-  const events =
-    await prisma.vendorEvent.findMany({
+    const ownership =
+      await verifyVendorOwnership(
+        req.params.id,
+        req.user
+      );
 
-      where: {
-        vendorId:
-          Number(id),
-      },
+    if (ownership.error) {
 
-      orderBy: {
-        createdAt: "desc",
-      },
+      return res
+        .status(
+          ownership.error.status
+        )
+        .json({
 
-      take: 50,
+          message:
+            ownership.error.message,
+
+        });
+
+    }
+
+    const { id } =
+      req.params;
+
+    const events =
+      await prisma.vendorEvent.findMany({
+
+        where: {
+
+          vendorId:
+            Number(id),
+
+        },
+
+        orderBy: {
+
+          createdAt:
+            "desc",
+
+        },
+
+        take: 50,
+
+      });
+
+    res.json(events);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+
+      message:
+        error.message,
 
     });
 
-  res.json(events);
+  }
 
 };
 
@@ -1124,12 +1422,32 @@ const getVendorCompletion = async (
 
   try {
 
+    const ownership =
+      await verifyVendorOwnership(
+        req.params.id,
+        req.user
+      );
+
+    if (ownership.error) {
+
+      return res
+        .status(
+          ownership.error.status
+        )
+        .json({
+
+          message:
+            ownership.error.message,
+
+        });
+
+    }
+
     const { id } =
       req.params;
 
     const vendor =
       await prisma.vendor.findUnique({
-
         where: {
           id: Number(id),
         },
@@ -1318,4 +1636,5 @@ module.exports = {
   rejectVendor,
   getVendorCompletion,
   checkVendorOwnership,
+  getVendorByIdAdmin,
 }

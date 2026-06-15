@@ -20,6 +20,7 @@ const {
   rejectVendor,
   getVendorCompletion,
   checkVendorOwnership,
+  getVendorByIdAdmin,
 } = require("../controllers/vendorController");
 
 const {
@@ -39,7 +40,13 @@ const authMiddleware =
 
 router.get("/", getVendors);
 
-router.post("/", createVendor);
+router.post(
+  "/",
+  authMiddleware,
+  adminMiddleware,
+  createVendor
+);
+
 
 router.post(
 
@@ -48,6 +55,17 @@ router.post(
   authMiddleware,
 
   submitVendor
+
+);
+router.get(
+
+  "/admin/:id",
+
+  authMiddleware,
+
+  adminMiddleware,
+
+  getVendorByIdAdmin
 
 );
 
@@ -84,6 +102,7 @@ router.put(
 );
 router.get(
   "/:id/completion",
+  authMiddleware,
   getVendorCompletion
 );
 
@@ -101,11 +120,13 @@ router.delete(
 
 router.get(
   "/:id/analytics",
+  authMiddleware,
   getVendorAnalytics
 );
 
 router.get(
   "/:id/events",
+  authMiddleware,
   getVendorEvents
 );
 

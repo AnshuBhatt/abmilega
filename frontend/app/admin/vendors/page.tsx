@@ -22,7 +22,17 @@ export default async function VendorsPage() {
   return (
 
     <div>
-
+<Link
+  href="/admin/vendors/new"
+>
+  <button
+    style={{
+      marginBottom: "20px",
+    }}
+  >
+    Add New Vendor
+  </button>
+</Link>
       <h1>
         Vendors
       </h1>
