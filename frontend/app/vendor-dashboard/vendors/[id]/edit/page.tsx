@@ -1,85 +1,114 @@
+"use client";
 
-
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import VendorForm from "@/components/VendorForm";
 
+export default function VendorEditPage() {
 
-async function getVendor(
-  id: string
-) {
+    const params = useParams();
 
-  const res =
-    await fetch(
+    const id = params?.id as string;
 
-      `http://localhost:5000/vendors/id/${id}`,
+    const [vendor, setVendor] =
+        useState<any>(null);
 
-      {
+    const [loading, setLoading] =
+        useState(true);
 
-        cache: "no-store",
+    useEffect(() => {
 
-      }
+        if (!id) return;
 
-    );
+        async function loadVendor() {
 
-  return res.json();
+            try {
 
-}
+                const token =
+                    localStorage.getItem(
+                        "token"
+                    );
 
-export default async function VendorEditPage({
+                const response =
+                    await fetch(
 
-  params,
+                        `http://localhost:5000/vendors/id/${id}`,
 
-}: {
+                        {
 
-  params: Promise<{
-    id: string;
-  }>;
+                            headers: {
 
-}) {
+                                Authorization:
+                                    `Bearer ${token}`,
 
-  const { id } =
-    await params;
+                            },
 
-  const vendor =
-    await getVendor(id);
+                        }
 
-  if (!vendor) {
+                    );
 
-    return (
+                const data =
+                    await response.json();
 
-      <div>
+                console.log(data);
 
-        <h1>
-          Vendor not found
-        </h1>
+                setVendor(data);
 
-      </div>
+            } catch (error) {
 
-    );
+                console.error(error);
 
-  }
+            } finally {
 
+                setLoading(false);
 
+            }
+
+        }
+
+        loadVendor();
+
+    }, [id]);
+
+    if (loading) {
+
+        return <div>Loading...</div>;
+
+    }
+
+ if (vendor?.message) {
 
   return (
 
-    <div
-      style={{
-        padding: "20px",
-      }}
-    >
+    <div>
 
       <h1>
-        Edit Business
+        {vendor.message}
       </h1>
-
-      <VendorForm
-        initialVendor={
-          vendor
-        }
-      />
 
     </div>
 
   );
+
+}
+    return (
+
+        <div
+            style={{
+                padding: "20px",
+            }}
+        >
+
+            <h1>
+                Edit Business
+            </h1>
+
+            <VendorForm
+                initialVendor={vendor}
+            />
+
+        </div>
+
+    );
 
 }

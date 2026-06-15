@@ -7,8 +7,8 @@ const prisma =
 const jwt =
   require("jsonwebtoken");
 
-  const JWT_SECRET =
-  "abmilega-secret";
+const JWT_SECRET =
+  process.env.JWT_SECRET;
 
   const sendOtp = async (
   req,
@@ -157,7 +157,7 @@ const verifyOtp = async (
 
         },
 
-        "abmilega-secret",
+        JWT_SECRET,
 
         {
 
@@ -168,13 +168,24 @@ const verifyOtp = async (
 
       );
 
-    res.json({
+   const vendor =
+  await prisma.vendor.findFirst({
 
-      token,
+    where: {
+      ownerId: user.id,
+    },
 
-      user,
+  });
 
-    });
+res.json({
+
+  token,
+
+  user,
+
+  hasVendor: !!vendor,
+
+});
 
   } catch (error) {
 

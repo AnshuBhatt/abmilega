@@ -6,6 +6,7 @@ const vendorRoutes = require("./routes/vendorRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 
 const cityRoutes = require("./routes/cityRoutes");
+require("dotenv").config();
 
 const app = express();
 

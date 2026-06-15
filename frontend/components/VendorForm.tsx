@@ -87,7 +87,7 @@ export default function VendorForm({
         if (initialVendor.stats) {
 
             setStatsData(
-                initialVendor.stats.map(
+                (initialVendor.stats || []).map(
                     (stat: any) => ({
                         templateId:
                             stat.templateId,
@@ -103,7 +103,7 @@ export default function VendorForm({
 
             setSelectedAmenities(
 
-                initialVendor.amenities.map(
+                (initialVendor.amenities || []).map(
                     (item: any) =>
                         item.amenityId
                 )
@@ -120,7 +120,7 @@ export default function VendorForm({
 
         setPackagesData(
 
-            initialVendor.packages.map(
+           (initialVendor.packages || []).map(
                 (pkg: any) => ({
 
                     packageTemplateId:
@@ -249,46 +249,85 @@ export default function VendorForm({
 
     }
 
-    async function createVendor() {
+ async function createVendor() {
 
-        const payload = {
+    const payload = {
 
-            ...vendorData,
+        ...vendorData,
 
-            stats: statsData,
+        stats: statsData,
 
-            amenities: selectedAmenities,
+        amenities: selectedAmenities,
 
-            packages: packagesData,
+        packages: packagesData,
 
-        };
-        console.log(payload);
+    };
 
-        const url = isEditMode
-            ? `http://localhost:5000/vendors/${initialVendor.id}`
-            : "http://localhost:5000/vendors";
+    console.log(payload);
 
-        const method = isEditMode
-            ? "PUT"
-            : "POST";
+    const url = isEditMode
+        ? `http://localhost:5000/vendors/${initialVendor.id}`
+        : "http://localhost:5000/vendors";
 
-        fetch(
+    const method = isEditMode
+        ? "PUT"
+        : "POST";
+
+    const token =
+        localStorage.getItem(
+            "token"
+        );
+
+    const response =
+        await fetch(
             url,
             {
                 method,
+
                 headers: {
+
                     "Content-Type":
                         "application/json",
+
+                    Authorization:
+                        `Bearer ${token}`,
+
                 },
-                body: JSON.stringify(
-                    payload
-                ),
+
+                body:
+                    JSON.stringify(
+                        payload
+                    ),
+
             }
         );
 
+    const data =
+        await response.json();
+
+    console.log(data);
+
+    if (!response.ok) {
+
+        alert(
+            data.message ||
+            "Something went wrong"
+        );
+
+        return;
+
     }
 
+    alert(
+    isEditMode
+        ? "Business updated successfully"
+        : "Business submitted successfully"
+);
 
+window.location.href =
+    "/vendor-dashboard";
+
+}
 
     useEffect(() => {
         loadCategories();
@@ -304,7 +343,12 @@ export default function VendorForm({
 
     useEffect(() => {
 
-        if (!selectedCategory) return;
+        if (
+  !selectedCategory ||
+  selectedCategory === "undefined"
+) {
+  return;
+}
 
         loadOnboardingConfig(
             selectedCategory
@@ -421,99 +465,99 @@ export default function VendorForm({
 
     function getCompletion() {
 
-  let score = 0;
+        let score = 0;
 
-  if (vendorData.name)
-    score += 10;
+        if (vendorData.name)
+            score += 10;
 
-  if (vendorData.description)
-    score += 15;
+        if (vendorData.description)
+            score += 15;
 
-  if (vendorData.phone)
-    score += 10;
+        if (vendorData.phone)
+            score += 10;
 
-  if (vendorData.whatsapp)
-    score += 10;
+        if (vendorData.whatsapp)
+            score += 10;
 
-  if (vendorData.imageUrl)
-    score += 15;
+        if (vendorData.imageUrl)
+            score += 15;
 
-  if (
-    selectedAmenities.length > 0
-  )
-    score += 15;
+        if (
+            selectedAmenities.length > 0
+        )
+            score += 15;
 
-  if (
-    packagesData.length > 0
-  )
-    score += 15;
+        if (
+            packagesData.length > 0
+        )
+            score += 15;
 
-  if (
-    vendorData.startingPrice
-  )
-    score += 10;
+        if (
+            vendorData.startingPrice
+        )
+            score += 10;
 
-  return score;
+        return score;
 
-}
+    }
 
     return (
-        
+
         <div>
             <div
-  style={{
-    marginBottom: "20px",
-  }}
->
+                style={{
+                    marginBottom: "20px",
+                }}
+            >
 
-  <span>
-    {step >= 1 ? "✅" : "⬜"}
-    Business
-  </span>
+                <span>
+                    {step >= 1 ? "✅" : "⬜"}
+                    Business
+                </span>
 
-  {" → "}
+                {" → "}
 
-  <span>
-    {step >= 2 ? "✅" : "⬜"}
-    Location
-  </span>
+                <span>
+                    {step >= 2 ? "✅" : "⬜"}
+                    Location
+                </span>
 
-  {" → "}
+                {" → "}
 
-  <span>
-    {step >= 3 ? "✅" : "⬜"}
-    Pricing
-  </span>
+                <span>
+                    {step >= 3 ? "✅" : "⬜"}
+                    Pricing
+                </span>
 
-  {" → "}
+                {" → "}
 
-  <span>
-    {step >= 4 ? "✅" : "⬜"}
-    Stats
-  </span>
+                <span>
+                    {step >= 4 ? "✅" : "⬜"}
+                    Stats
+                </span>
 
-  {" → "}
+                {" → "}
 
-  <span>
-    {step >= 5 ? "✅" : "⬜"}
-    Packages
-  </span>
+                <span>
+                    {step >= 5 ? "✅" : "⬜"}
+                    Packages
+                </span>
 
-  {" → "}
+                {" → "}
 
-  <span>
-    {step >= 6 ? "✅" : "⬜"}
-    Social
-  </span>
+                <span>
+                    {step >= 6 ? "✅" : "⬜"}
+                    Social
+                </span>
 
-  {" → "}
+                {" → "}
 
-  <span>
-    {step >= 7 ? "✅" : "⬜"}
-    Review
-  </span>
+                <span>
+                    {step >= 7 ? "✅" : "⬜"}
+                    Review
+                </span>
 
-</div>
+            </div>
 
             <h1>{isEditMode
                 ? "Update Vendor"
@@ -592,18 +636,18 @@ export default function VendorForm({
                         <br />
 
                         <input
-                    placeholder="Image URL"
-                    value={vendorData.imageUrl}
-                    onChange={(e) =>
-                        setVendorData({
-                            ...vendorData,
-                            imageUrl: e.target.value,
-                        })
-                    }
-                />
+                            placeholder="Image URL"
+                            value={vendorData.imageUrl}
+                            onChange={(e) =>
+                                setVendorData({
+                                    ...vendorData,
+                                    imageUrl: e.target.value,
+                                })
+                            }
+                        />
 
-                <br />
-                <br />
+                        <br />
+                        <br />
 
                     </>
 
@@ -612,35 +656,35 @@ export default function VendorForm({
                 {step === 2 && (
 
                     <>
-                     <select
-                    value={vendorData.categoryId}
-                    onChange={(e) => {
+                        <select
+                            value={vendorData.categoryId}
+                            onChange={(e) => {
 
-                        setSelectedCategory(
-                            e.target.value
-                        );
+                                setSelectedCategory(
+                                    e.target.value
+                                );
 
-                        setVendorData({
-                            ...vendorData,
-                            categoryId: e.target.value,
-                        });
+                                setVendorData({
+                                    ...vendorData,
+                                    categoryId: e.target.value,
+                                });
 
-                    }}
-                >
-                    <option>Select Category</option>
-
-                    {categories.map((category: any) => (
-                        <option
-                            key={category.id}
-                            value={category.id}
+                            }}
                         >
-                            {category.name}
-                        </option>
-                    ))}
-                </select>
+                            <option>Select Category</option>
 
-                <br />
-                <br />
+                            {categories.map((category: any) => (
+                                <option
+                                    key={category.id}
+                                    value={category.id}
+                                >
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+
+                        <br />
+                        <br />
 
                         <h2>
                             Location
@@ -716,41 +760,41 @@ export default function VendorForm({
 
                 {step === 3 && (
 
-  <>
+                    <>
 
-    <h2>
-      Pricing
-    </h2>
+                        <h2>
+                            Pricing
+                        </h2>
 
-                <input
-                    placeholder="Starting Price"
-                    value={vendorData.startingPrice}
-                    onChange={(e) =>
-                        setVendorData({
-                            ...vendorData,
-                            startingPrice: e.target.value,
-                        })
-                    }
-                />
+                        <input
+                            placeholder="Starting Price"
+                            value={vendorData.startingPrice}
+                            onChange={(e) =>
+                                setVendorData({
+                                    ...vendorData,
+                                    startingPrice: e.target.value,
+                                })
+                            }
+                        />
 
-                <br />
-                <br />
+                        <br />
+                        <br />
 
-                <input
-                    placeholder="Pricing Unit"
-                    value={vendorData.pricingUnit}
-                    onChange={(e) =>
-                        setVendorData({
-                            ...vendorData,
-                            pricingUnit: e.target.value,
-                        })
-                    }
-                />
+                        <input
+                            placeholder="Pricing Unit"
+                            value={vendorData.pricingUnit}
+                            onChange={(e) =>
+                                setVendorData({
+                                    ...vendorData,
+                                    pricingUnit: e.target.value,
+                                })
+                            }
+                        />
 
 
-  </>
+                    </>
 
-)}
+                )}
 
                 {step === 4 && (
 
@@ -965,111 +1009,136 @@ export default function VendorForm({
                         <br />
                         <br />
 
-                      
+
 
                     </>
 
                 )}
 
-{step === 7 && (
+                {step === 7 && (
 
                     <>
-  <h2>
-    Review Listing
-  </h2>
+                        <h2>
+                            Review Listing
+                        </h2>
 
-  <p>
-    <strong>Name:</strong>
-    {" "}
-    {vendorData.name}
-  </p>
+                        <p>
+                            <strong>Name:</strong>
+                            {" "}
+                            {vendorData.name}
+                        </p>
 
-  <p>
-    <strong>Description:</strong>
-    {" "}
-    {vendorData.description}
-  </p>
+                        <p>
+                            <strong>Description:</strong>
+                            {" "}
+                            {vendorData.description}
+                        </p>
 
-  <p>
-    <strong>Phone:</strong>
-    {" "}
-    {vendorData.phone}
-  </p>
+                        <p>
+                            <strong>Phone:</strong>
+                            {" "}
+                            {vendorData.phone}
+                        </p>
 
-  <p>
-    <strong>WhatsApp:</strong>
-    {" "}
-    {vendorData.whatsapp}
-  </p>
+                        <p>
+                            <strong>WhatsApp:</strong>
+                            {" "}
+                            {vendorData.whatsapp}
+                        </p>
 
-  <p>
-    <strong>Starting Price:</strong>
-    {" "}
-    ₹{vendorData.startingPrice}
-  </p>
+                        <p>
+                            <strong>Starting Price:</strong>
+                            {" "}
+                            ₹{vendorData.startingPrice}
+                        </p>
 
-  <p>
-    <strong>Pricing Unit:</strong>
-    {" "}
-    {vendorData.pricingUnit}
-  </p>
+                        <p>
+                            <strong>Pricing Unit:</strong>
+                            {" "}
+                            {vendorData.pricingUnit}
+                        </p>
 
-  <p>
-    <strong>Amenities:</strong>
-    {" "}
-    {selectedAmenities.length}
-  </p>
+                        <p>
+                            <strong>Amenities:</strong>
+                            {" "}
+                            {selectedAmenities.length}
+                        </p>
 
-  <p>
-    <strong>Packages:</strong>
-    {" "}
-    {packagesData.length}
-  </p>
-<h3>
-  Completion:
-  {" "}
-  {getCompletion()}%
-</h3>
-</>
-)}
-
-
-                
-
-               
+                        <p>
+                            <strong>Packages:</strong>
+                            {" "}
+                            {packagesData.length}
+                        </p>
+                        <h3>
+                            Completion:
+                            {" "}
+                            {getCompletion()}%
+                        </h3>
+                    </>
+                )}
 
 
 
-                
+
+
+
+
+
+
                 <div>
 
-                   
+
 
                 </div>
             </form>
-             {step > 1 && (
+            <div
+    style={{
+        marginTop: "20px",
+        display: "flex",
+        gap: "10px",
+    }}
+>
 
-                        <button
-                            onClick={() =>
-                                setStep(step - 1)
-                            }
-                        >
-                            Back
-                        </button>
+    {step > 1 && (
 
-                    )}
+        <button
+            type="button"
+            onClick={() =>
+                setStep(step - 1)
+            }
+        >
+            Back
+        </button>
 
-                    {step < 7 && (
+    )}
 
-                        <button
-                            onClick={() =>
-                                setStep(step + 1)
-                            }
-                        >
-                            Next
-                        </button>
+    {step < 7 && (
 
-                    )}
+        <button
+            type="button"
+            onClick={() =>
+                setStep(step + 1)
+            }
+        >
+            Next
+        </button>
+
+    )}
+
+    {step === 7 && (
+
+        <button
+            type="button"
+            onClick={createVendor}
+        >
+            {isEditMode
+                ? "Update Business"
+                : "Submit Business"}
+        </button>
+
+    )}
+
+</div>
         </div>
     );
 
