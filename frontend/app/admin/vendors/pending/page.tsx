@@ -114,43 +114,99 @@ export default function PendingVendorsPage() {
           Pending Vendors
         </h1>
 
-        {vendors.map(
-          (vendor: any) => (
+       {vendors.map(
+  (vendor: any) => (
 
-            <div
-              key={vendor.id}
-            >
+    <div
+      key={vendor.id}
+      style={{
+        border: "1px solid #ddd",
+        padding: "15px",
+        marginBottom: "15px",
+      }}
+    >
 
-              <h3>
-                {vendor.name}
-              </h3>
+      <h3>
+        {vendor.name}
+      </h3>
 
-              <button
-                onClick={() =>
-                  approveVendor(
-                    vendor.id
-                  )
-                }
-              >
-                Approve
-              </button>
+      <p>
+        Category:
+        {" "}
+        {vendor.category?.name}
+      </p>
 
-              {" "}
+      <p>
+        City:
+        {" "}
+        {vendor.city?.name}
+      </p>
 
-              <button
-                onClick={() =>
-                  rejectVendor(
-                    vendor.id
-                  )
-                }
-              >
-                Reject
-              </button>
+      <p>
+        Phone:
+        {" "}
+        {vendor.phone}
+      </p>
 
-            </div>
+      <p>
+        Status:
+        {" "}
+        <strong
+          style={{
+            color: "orange",
+          }}
+        >
+          {vendor.status}
+        </strong>
+      </p>
 
+      <a
+        href={`/vendor/${vendor.slug}`}
+        target="_blank"
+      >
+        <button>
+          View
+        </button>
+      </a>
+
+      {" "}
+
+      <a
+        href={`/admin/vendors/${vendor.id}/edit`}
+      >
+        <button>
+          Edit
+        </button>
+      </a>
+
+      {" "}
+
+      <button
+        onClick={() =>
+          approveVendor(
+            vendor.id
           )
-        )}
+        }
+      >
+        Approve
+      </button>
+
+      {" "}
+
+      <button
+        onClick={() =>
+          rejectVendor(
+            vendor.id
+          )
+        }
+      >
+        Reject
+      </button>
+
+    </div>
+
+  )
+)}
 
       </div>
 

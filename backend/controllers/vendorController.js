@@ -659,6 +659,12 @@ if (ownership.error) {
 
     });
 
+    await prisma.vendorEvent.deleteMany({
+  where: {
+    vendorId,
+  },
+});
+
     await prisma.vendor.delete({
 
       where: {
@@ -1617,6 +1623,33 @@ const checkVendorOwnership =
 
 };
 
+const getAllVendorsAdmin = async (
+  req,
+  res
+) => {
+
+  const vendors =
+    await prisma.vendor.findMany({
+
+      include: {
+
+        category: true,
+
+        city: true,
+
+      },
+
+      orderBy: {
+
+        createdAt: "desc",
+
+      },
+
+    });
+
+  res.json(vendors);
+
+};
 module.exports = {
   getVendors,
   createVendor,
@@ -1637,4 +1670,5 @@ module.exports = {
   getVendorCompletion,
   checkVendorOwnership,
   getVendorByIdAdmin,
+  getAllVendorsAdmin,
 }
