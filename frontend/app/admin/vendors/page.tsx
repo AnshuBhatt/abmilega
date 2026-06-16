@@ -56,6 +56,51 @@ try {
 
 }
 
+const [pendingCount,
+setPendingCount] =
+useState(0);
+
+async function loadPendingCount() {
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+  const res =
+    await fetch(
+
+      "http://localhost:5000/vendors/pending",
+
+      {
+
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+  const data =
+    await res.json();
+
+  setPendingCount(
+    data.length
+  );
+
+}
+useEffect(() => {
+
+  loadVendors();
+
+  loadPendingCount();
+
+}, []);
+
 useEffect(() => {
 
 loadVendors();
@@ -67,6 +112,80 @@ if (loading) {
 return <p>Loading...</p>;
 
 }
+async function approveVendor(
+  vendorId: number
+) {
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+  const response =
+    await fetch(
+
+      `http://localhost:5000/vendors/${vendorId}/approve`,
+
+      {
+
+        method: "PUT",
+
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+  if (response.ok) {
+
+    loadVendors();
+
+  }
+
+}
+
+async function rejectVendor(
+  vendorId: number
+) {
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+  const response =
+    await fetch(
+
+      `http://localhost:5000/vendors/${vendorId}/reject`,
+
+      {
+
+        method: "PUT",
+
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+  if (response.ok) {
+
+    loadVendors();
+
+  }
+
+}
+
 
 return (
 
@@ -89,12 +208,18 @@ return (
   </Link>
 
   <Link
-    href="/admin/vendors/pending"
-  >
-    <button>
-      Pending Vendors
-    </button>
-  </Link>
+  href="/admin/vendors/pending"
+>
+  <button>
+
+    Pending Vendors
+
+    {" "}
+
+    ({pendingCount})
+
+  </button>
+</Link>
 
 </div>
 
@@ -146,6 +271,63 @@ return (
           </strong>
 
         </p>
+        {vendor.status ===
+  "PENDING" && (
+
+  <div
+    style={{
+      marginBottom: "10px",
+    }}
+  >
+
+    <button
+     onClick={() => {
+
+  const confirmed =
+    confirm(
+      "Approve this vendor?"
+    );
+
+  if (confirmed) {
+
+    approveVendor(
+      vendor.id
+    );
+
+  }
+
+}}
+    >
+      Approve
+    </button>
+
+    {" "}
+
+    <button
+     onClick={() => {
+
+  const confirmed =
+    confirm(
+      "Reject this vendor?"
+    );
+
+  if (confirmed) {
+
+    rejectVendor(
+      vendor.id
+    );
+
+  }
+
+}}
+    >
+      Reject
+    </button>
+
+  </div>
+
+)}
+
 
         <Link
           href={`/admin/vendors/${vendor.id}/edit`}

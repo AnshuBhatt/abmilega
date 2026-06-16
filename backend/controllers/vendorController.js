@@ -1650,6 +1650,110 @@ const getAllVendorsAdmin = async (
   res.json(vendors);
 
 };
+
+const getVendorAnalyticsAdmin =
+  async (req, res) => {
+
+    const vendorId =
+      Number(req.params.id);
+
+    const events =
+      await prisma.vendorEvent.groupBy({
+
+        by: ["eventType"],
+
+        where: {
+          vendorId,
+        },
+
+        _count: true,
+
+      });
+
+    const analytics = {
+
+      views: 0,
+
+      callClicks: 0,
+
+      whatsappClicks: 0,
+
+      mapClicks: 0,
+
+    };
+
+    events.forEach((event) => {
+
+      if (
+        event.eventType ===
+        "VIEW"
+      ) {
+        analytics.views =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "CALL_CLICK"
+      ) {
+        analytics.callClicks =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "WHATSAPP_CLICK"
+      ) {
+        analytics.whatsappClicks =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "MAP_CLICK"
+      ) {
+        analytics.mapClicks =
+          event._count;
+      }
+
+    });
+
+    res.json(
+      analytics
+    );
+
+};
+
+const getVendorEventsAdmin =
+  async (req, res) => {
+
+    const events =
+      await prisma.vendorEvent.findMany({
+
+        where: {
+
+          vendorId:
+            Number(
+              req.params.id
+            ),
+
+        },
+
+        orderBy: {
+
+          createdAt:
+            "desc",
+
+        },
+
+        take: 50,
+
+      });
+
+    res.json(events);
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -1671,4 +1775,6 @@ module.exports = {
   checkVendorOwnership,
   getVendorByIdAdmin,
   getAllVendorsAdmin,
+  getVendorAnalyticsAdmin,
+  getVendorEventsAdmin,
 }
