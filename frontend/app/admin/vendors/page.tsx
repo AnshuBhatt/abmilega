@@ -1,94 +1,183 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import DeleteVendorButton from "@/components/DeleteVendorButton";
 import Link from "next/link";
 
-async function getVendors() {
+export default function VendorsPage() {
 
-  const res = await fetch(
-    "http://localhost:5000/vendors",
-    {
-      cache: "no-store",
-    }
-  );
+const [vendors, setVendors] =
+useState<any[]>([]);
 
-  return res.json();
+const [loading, setLoading] =
+useState(true);
+
+async function loadVendors() {
+
+try {
+
+  const token =
+    localStorage.getItem(
+      "token"
+    );
+
+  const res =
+    await fetch(
+
+      "http://localhost:5000/vendors/admin",
+
+      {
+
+        headers: {
+
+          Authorization:
+            `Bearer ${token}`,
+
+        },
+
+      }
+
+    );
+
+  const data =
+    await res.json();
+
+  setVendors(data);
+
+} catch (error) {
+
+  console.error(error);
+
+} finally {
+
+  setLoading(false);
 
 }
 
-export default async function VendorsPage() {
+}
 
-  const vendors =
-    await getVendors();
+useEffect(() => {
 
-  return (
+loadVendors();
 
-    <div>
-<Link
-  href="/admin/vendors/new"
+}, []);
+
+if (loading) {
+
+return <p>Loading...</p>;
+
+}
+
+return (
+
+<div>
+
+  <div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginBottom: "20px",
+  }}
 >
-  <button
-    style={{
-      marginBottom: "20px",
-    }}
+
+  <Link
+    href="/admin/vendors/new"
   >
-    Add New Vendor
-  </button>
-</Link>
-      <h1>
-        Vendors
-      </h1>
+    <button>
+      Add New Vendor
+    </button>
+  </Link>
 
-      {vendors.map(
-        (vendor: any) => (
+  <Link
+    href="/admin/vendors/pending"
+  >
+    <button>
+      Pending Vendors
+    </button>
+  </Link>
 
-          <div
-            key={vendor.id}
+</div>
+
+<h1>
+  Vendors
+</h1>
+
+  {vendors.map(
+    (vendor: any) => (
+
+      <div
+        key={vendor.id}
+        style={{
+          border:
+            "1px solid #ddd",
+          padding: "15px",
+          marginBottom: "15px",
+        }}
+      >
+
+        <h3>
+          {vendor.name}
+        </h3>
+
+        <p>
+          {vendor.category?.name}
+        </p>
+
+        <p>
+          {vendor.city?.name}
+        </p>
+
+        <p>
+
+          Status{" "}
+          <strong
             style={{
-              border:
-                "1px solid #ddd",
-              padding: "15px",
-              marginBottom: "15px",
+              color:
+                vendor.status === "APPROVED"
+                  ? "green"
+                  : vendor.status === "PENDING"
+                  ? "orange"
+                  : "red",
             }}
           >
 
-            <h3>
-              {vendor.name}
-            </h3>
+            {vendor.status}
 
-            <p>
-              {vendor.category.name}
-            </p>
+          </strong>
 
-            <p>
-              {vendor.city.name}
-            </p>
+        </p>
 
-            <Link
-  href={`/admin/vendors/${vendor.id}/edit`}
->
+        <Link
+          href={`/admin/vendors/${vendor.id}/edit`}
+        >
+          <button>
+            Edit
+          </button>
+        </Link>
 
-  <button>
-    Edit
-  </button>
+        {" "}
 
-</Link>
+        <Link
+          href={`/admin/vendors/${vendor.id}/analytics`}
+        >
+          <button>
+            Analytics
+          </button>
+        </Link>
 
-          <br/>  
-      <DeleteVendorButton
-    vendorId={vendor.id}
-  /> <br/>
-  <a
-  href={`/admin/vendors/${vendor.id}/analytics`}
->
-  Analytics
-</a>
+        {" "}
 
-          </div>
+        <DeleteVendorButton
+          vendorId={vendor.id}
+        />
 
-        )
-      )}
+      </div>
 
-    </div>
+    )
+  )}
 
-  );
+</div>
+
+);
 
 }

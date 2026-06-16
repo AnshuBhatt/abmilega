@@ -21,6 +21,7 @@ const {
   getVendorCompletion,
   checkVendorOwnership,
   getVendorByIdAdmin,
+  getAllVendorsAdmin
 } = require("../controllers/vendorController");
 
 const {
@@ -37,6 +38,18 @@ const authMiddleware =
   require(
     "../middleware/adminMiddleware"
   );
+
+  router.get(
+
+  "/admin",
+
+  authMiddleware,
+
+  adminMiddleware,
+
+  getAllVendorsAdmin
+
+);
 
 router.get("/", getVendors);
 
