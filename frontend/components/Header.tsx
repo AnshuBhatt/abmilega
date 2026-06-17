@@ -90,6 +90,19 @@ export default function Header() {
             List My Business
           </a>
 
+             {
+  user?.role === "ADMIN" && (
+
+    <>
+      {" | "}
+      <a href="/admin">
+        Admin Panel
+      </a>
+    </>
+
+  )
+}
+
           {" | "}
 
           <button
@@ -97,18 +110,7 @@ export default function Header() {
           >
             Logout
           </button>
-          {
-  user?.role === "ADMIN" && (
-
-    <>
-      {" | "}
-      <a href="/admin/vendors">
-        Admin Panel
-      </a>
-    </>
-
-  )
-}
+       
         </div>
       ) : (
         <a href="/login">

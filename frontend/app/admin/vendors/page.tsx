@@ -21,11 +21,24 @@ try {
       "token"
     );
 
-  const res =
-    await fetch(
+  const searchParams =
+  new URLSearchParams(
+    window.location.search
+  );
 
-      "http://localhost:5000/vendors/admin",
+const status =
+  searchParams.get(
+    "status"
+  );
 
+const url =
+  status
+    ? `http://localhost:5000/vendors/admin?status=${status}`
+    : "http://localhost:5000/vendors/admin";
+
+const res =
+  await fetch(
+    url,
       {
 
         headers: {
