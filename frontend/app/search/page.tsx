@@ -104,14 +104,199 @@ export default function SearchPage() {
         </button>
       </div>
 
-      <h2>Results</h2>
+    <div
+  style={{
+    display: "grid",
+    gridTemplateColumns:
+      "280px 1fr",
+    gap: "20px",
+    marginTop: "20px",
+  }}
+>
 
-          {vendors.map((vendor: any) => (
-              <VendorCard
-                  key={vendor.id}
-                  vendor={vendor}
-              />
-          ))}
+  <div
+    style={{
+      border: "1px solid #ddd",
+      borderRadius: "12px",
+      padding: "20px",
+      height: "fit-content",
+    }}
+  >
+
+    <h3>
+      Filters
+    </h3>
+
+    <div
+      style={{
+        marginTop: "20px",
+      }}
+    >
+
+      <p>
+        Category
+      </p>
+
+      <select
+        value={category}
+        onChange={(e) =>
+          setCategory(
+            e.target.value
+          )
+        }
+        style={{
+          width: "100%",
+        }}
+      >
+
+        <option value="">
+          All Categories
+        </option>
+
+        {categories.map(
+          (category: any) => (
+
+            <option
+              key={
+                category.id
+              }
+              value={
+                category.slug
+              }
+            >
+
+              {category.name}
+
+            </option>
+
+          )
+        )}
+
+      </select>
+
+    </div>
+
+    <div
+      style={{
+        marginTop: "20px",
+      }}
+    >
+
+      <p>
+        City
+      </p>
+
+      <select
+        value={city}
+        onChange={(e) =>
+          setCity(
+            e.target.value
+          )
+        }
+        style={{
+          width: "100%",
+        }}
+      >
+
+        <option value="">
+          All Cities
+        </option>
+
+        {cities.map(
+          (city: any) => (
+
+            <option
+              key={city.id}
+              value={city.slug}
+            >
+
+              {city.name}
+
+            </option>
+
+          )
+        )}
+
+      </select>
+
+    </div>
+
+    <button
+      onClick={handleSearch}
+      style={{
+        marginTop: "20px",
+        width: "100%",
+      }}
+    >
+
+      Apply Filters
+
+    </button>
+
+  </div>
+
+  <div>
+
+    <div
+      style={{
+        display: "flex",
+        justifyContent:
+          "space-between",
+        marginBottom: "20px",
+      }}
+    >
+
+      <h2>
+
+        {vendors.length}
+        {" "}
+        Vendors Found
+
+      </h2>
+
+      <select>
+
+        <option>
+          Top Rated
+        </option>
+
+        <option>
+          Lowest Price
+        </option>
+
+        <option>
+          Highest Price
+        </option>
+
+      </select>
+
+    </div>
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns:
+          "repeat(2, 1fr)",
+        gap: "20px",
+      }}
+    >
+
+      {vendors.map(
+        (vendor: any) => (
+
+          <VendorCard
+            key={vendor.id}
+            vendor={vendor}
+          />
+
+        )
+      )}
+
+    </div>
+
+  </div>
+
+</div>
     </div>
   );
 }
