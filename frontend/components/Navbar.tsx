@@ -1,26 +1,121 @@
 import Link from "next/link";
 
 export default function Navbar() {
+
   return (
+
     <nav
-      style={{
-        padding: "15px",
-        borderBottom: "1px solid #ddd",
-        display: "flex",
-        gap: "20px",
-      }}
+      className="
+        bg-white
+        border-b
+        sticky
+        top-0
+        z-50
+      "
     >
-      <Link href="/">
-        <strong>ABMILEGA</strong>
-      </Link>
 
-      <Link href="/search">
-        Search
-      </Link>
+      <div
+        className="
+          max-w-7xl
+          mx-auto
+          px-4
+          h-16
+          flex
+          items-center
+          justify-between
+        "
+      >
 
-      <Link href="/vendors">
-        Vendors
-      </Link>
+        <Link
+          href="/"
+          className="
+            text-2xl
+            font-bold
+            text-orange-500
+          "
+        >
+
+          AbMilega
+
+        </Link>
+
+        <div
+          className="
+            hidden
+            md:flex
+            items-center
+            gap-8
+            text-gray-600
+          "
+        >
+
+          <Link href="/">
+            Home
+          </Link>
+
+          <Link href="/search">
+            Search
+          </Link>
+
+          <Link href="/vendors">
+            Vendors
+          </Link>
+
+          <Link href="/categories">
+            Categories
+          </Link>
+
+          <Link href="/cities">
+            Cities
+          </Link>
+
+        </div>
+
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+          "
+        >
+
+          <Link
+            href="/login"
+            className="
+              border
+              px-4
+              py-2
+              rounded-lg
+              hover:bg-gray-50
+            "
+          >
+
+            Login
+
+          </Link>
+
+          <Link
+            href="/list-my-business"
+            className="
+              bg-orange-500
+              text-white
+              px-4
+              py-2
+              rounded-lg
+              hover:bg-orange-600
+            "
+          >
+
+            List My Business
+
+          </Link>
+
+        </div>
+
+      </div>
+
     </nav>
+
   );
+
 }

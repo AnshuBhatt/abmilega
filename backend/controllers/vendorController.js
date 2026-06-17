@@ -75,14 +75,32 @@ const getVendors = async (req, res) => {
     where.isElite = true;
   }
 
-  const vendors = await prisma.vendor.findMany({
-    where,
-    include: {
-      category: true,
-      city: true,
-      
+ const vendors = await prisma.vendor.findMany({
+  where,
+
+  include: {
+
+    category: true,
+
+    city: true,
+
+    reviews: true,
+
+    stats: {
+      include: {
+        template: true,
+      },
     },
-  });
+
+    amenities: {
+      include: {
+        amenity: true,
+      },
+    },
+
+  },
+
+});
 
   res.json(vendors);
 };
