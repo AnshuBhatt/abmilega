@@ -10,6 +10,23 @@ export default function SearchPage() {
   const [vendors, setVendors] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [cities, setCities] = useState<any[]>([]);
+  const [sortBy, setSortBy] =
+  useState("rating");
+
+const [eliteOnly, setEliteOnly] =
+  useState(false);
+
+const [viewMode, setViewMode] =
+  useState("list");
+
+useEffect(() => {
+  handleSearch();
+}, [
+  sortBy,
+  eliteOnly,
+  category,
+  city,
+]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -46,6 +63,14 @@ export default function SearchPage() {
       url += `city=${city}`;
     }
 
+    if (eliteOnly) {
+  url += "elite=true&";
+}
+
+if (sortBy) {
+  url += `sort=${sortBy}&`;
+}
+
     const res = await fetch(url);
 
     const data = await res.json();
@@ -54,7 +79,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
+    <div className="container mx-auto px-4 py-6 space-y-8">
 
       {/* Search Hero */}
 
@@ -213,23 +238,55 @@ export default function SearchPage() {
           "
         >
 
-          <h3 className="font-semibold mb-4">
-            Filters
-          </h3>
+         <h3 className="font-semibold mb-4">
+  Filters
+</h3>
 
-          <button
-            onClick={handleSearch}
-            className="
-              w-full
-              bg-orange-500
-              text-white
-              py-2
-              rounded-lg
-            "
-          >
-            Apply Filters
-          </button>
+<div
+  className={
+    viewMode === "grid"
+      ? `
+          grid
+          grid-cols-1
+          md:grid-cols-2
+          gap-4
+        `
+      : `
+          space-y-4
+        `
+  }
+>
 
+  <label className="flex items-center gap-2">
+
+    <input
+      type="checkbox"
+      checked={eliteOnly}
+      onChange={(e) =>
+        setEliteOnly(
+          e.target.checked
+        )
+      }
+    />
+
+    Elite Vendors
+
+  </label>
+
+  <button
+    onClick={handleSearch}
+    className="
+      w-full
+      bg-orange-500
+      text-white
+      py-2
+      rounded-lg
+    "
+  >
+    Apply Filters
+  </button>
+
+</div>
         </div>
 
         {/* Results */}
@@ -260,33 +317,91 @@ export default function SearchPage() {
               </p>
 
             </div>
+            <div className="flex gap-2">
 
-            <select
-              className="
-                border
-                rounded-lg
-                px-3
-                py-2
-              "
-            >
+  <button
+    onClick={() =>
+      setViewMode("list")
+    }
+    className={`
+      px-3 py-2 rounded-lg border
+      ${
+        viewMode === "list"
+          ? "bg-orange-500 text-white"
+          : ""
+      }
+    `}
+  >
+    ☰
+  </button>
 
-              <option>
-                Top Rated
-              </option>
+  <button
+    onClick={() =>
+      setViewMode("grid")
+    }
+    className={`
+      px-3 py-2 rounded-lg border
+      ${
+        viewMode === "grid"
+          ? "bg-orange-500 text-white"
+          : ""
+      }
+    `}
+  >
+    ⊞
+  </button>
 
-              <option>
-                Lowest Price
-              </option>
+</div>
 
-              <option>
-                Highest Price
-              </option>
+          <select
+  value={sortBy}
+  onChange={(e) =>
+    setSortBy(
+      e.target.value
+    )
+  }
+  className="
+    border
+    rounded-lg
+    px-3
+    py-2
+  "
+>
+
+              <option value="rating">
+  Top Rated
+</option>
+
+<option value="priceLow">
+  Lowest Price
+</option>
+
+<option value="priceHigh">
+  Highest Price
+</option>
+
+<option value="newest">
+  Newest
+</option>
 
             </select>
 
           </div>
 
-          <div className="space-y-4">
+       <div
+  className={
+    viewMode === "grid"
+      ? `
+          grid
+          grid-cols-1
+          md:grid-cols-2
+          gap-4
+        `
+      : `
+          space-y-4
+        `
+  }
+>
 
             {vendors.map(
               (vendor: any) => (

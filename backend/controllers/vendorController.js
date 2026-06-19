@@ -55,9 +55,16 @@ const verifyVendorOwnership =
   };
 
 const getVendors = async (req, res) => {
-  const { category, city, elite } = req.query;
+  const {
+    category,
+    city,
+    elite,
+    sort,
+  } = req.query;
 
-  const where = { status: "APPROVED",};
+  const where = {
+    status: "APPROVED",
+  };
 
   if (category) {
     where.category = {
@@ -75,32 +82,65 @@ const getVendors = async (req, res) => {
     where.isElite = true;
   }
 
- const vendors = await prisma.vendor.findMany({
-  where,
+  let orderBy = {};
 
-  include: {
+switch (sort) {
+  case "rating":
+    orderBy = {
+      rating: "desc",
+    };
+    break;
 
-    category: true,
+  case "priceLow":
+    orderBy = {
+      startingPrice: "asc",
+    };
+    break;
 
-    city: true,
+  case "priceHigh":
+    orderBy = {
+      startingPrice: "desc",
+    };
+    break;
 
-    reviews: true,
+  case "newest":
+    orderBy = {
+      createdAt: "desc",
+    };
+    break;
 
-    stats: {
+  default:
+    orderBy = {
+      rating: "desc",
+    };
+}
+
+  const vendors =
+    await prisma.vendor.findMany({
+      where,
+
+      orderBy,
+
       include: {
-        template: true,
+        category: true,
+
+        city: true,
+
+        reviews: true,
+
+        stats: {
+          include: {
+            template: true,
+          },
+        },
+
+        amenities: {
+          include: {
+            amenity: true,
+          },
+        },
       },
-    },
-
-    amenities: {
-      include: {
-        amenity: true,
-      },
-    },
-
-  },
-
-});
+    });
 
   res.json(vendors);
 };
@@ -223,8 +263,11 @@ const createVendor = async (req, res) => {
           websiteUrl,
           instagramUrl,
 
-          startingPrice,
-          pricingUnit,
+         startingPrice: startingPrice
+  ? parseInt(startingPrice)
+  : null,
+
+pricingUnit,
 
           status:
             "APPROVED",
@@ -860,8 +903,11 @@ const updateVendor = async (req, res) => {
         websiteUrl,
         instagramUrl,
 
-        startingPrice,
-        pricingUnit,
+       startingPrice: startingPrice
+  ? parseInt(startingPrice)
+  : null,
+
+pricingUnit,
 
         categoryId:
           Number(categoryId),

@@ -760,42 +760,43 @@ window.location.href =
 
                 {step === 3 && (
 
-                    <>
+  <>
 
-                        <h2>
-                            Pricing
-                        </h2>
+    <h2>
+      Pricing
+    </h2>
 
-                        <input
-                            placeholder="Starting Price"
-                            value={vendorData.startingPrice}
-                            onChange={(e) =>
-                                setVendorData({
-                                    ...vendorData,
-                                    startingPrice: e.target.value,
-                                })
-                            }
-                        />
+    <input
+      type="number"
+      placeholder="Starting Price"
+      value={vendorData.startingPrice || ""}
+      onChange={(e) =>
+        setVendorData({
+          ...vendorData,
+          startingPrice:
+            e.target.value,
+        })
+      }
+    />
 
-                        <br />
-                        <br />
+    <br />
+    <br />
 
-                        <input
-                            placeholder="Pricing Unit"
-                            value={vendorData.pricingUnit}
-                            onChange={(e) =>
-                                setVendorData({
-                                    ...vendorData,
-                                    pricingUnit: e.target.value,
-                                })
-                            }
-                        />
+    <input
+      placeholder="Pricing Unit"
+      value={vendorData.pricingUnit || ""}
+      onChange={(e) =>
+        setVendorData({
+          ...vendorData,
+          pricingUnit:
+            e.target.value,
+        })
+      }
+    />
 
+  </>
 
-                    </>
-
-                )}
-
+)}
                 {step === 4 && (
 
                     <>
