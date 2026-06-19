@@ -55,9 +55,16 @@ const verifyVendorOwnership =
   };
 
 const getVendors = async (req, res) => {
-  const { category, city, elite } = req.query;
+  const {
+    category,
+    city,
+    elite,
+    sort,
+  } = req.query;
 
-  const where = { status: "APPROVED",};
+  const where = {
+    status: "APPROVED",
+  };
 
   if (category) {
     where.category = {
@@ -75,14 +82,65 @@ const getVendors = async (req, res) => {
     where.isElite = true;
   }
 
-  const vendors = await prisma.vendor.findMany({
-    where,
-    include: {
-      category: true,
-      city: true,
-      
-    },
-  });
+  let orderBy = {};
+
+switch (sort) {
+  case "rating":
+    orderBy = {
+      rating: "desc",
+    };
+    break;
+
+  case "priceLow":
+    orderBy = {
+      startingPrice: "asc",
+    };
+    break;
+
+  case "priceHigh":
+    orderBy = {
+      startingPrice: "desc",
+    };
+    break;
+
+  case "newest":
+    orderBy = {
+      createdAt: "desc",
+    };
+    break;
+
+  default:
+    orderBy = {
+      rating: "desc",
+    };
+}
+
+  const vendors =
+    await prisma.vendor.findMany({
+      where,
+
+      orderBy,
+
+      include: {
+        category: true,
+
+        city: true,
+
+        reviews: true,
+
+        stats: {
+          include: {
+            template: true,
+          },
+        },
+
+        amenities: {
+          include: {
+            amenity: true,
+          },
+        },
+      },
+    });
 
   res.json(vendors);
 };
@@ -205,8 +263,11 @@ const createVendor = async (req, res) => {
           websiteUrl,
           instagramUrl,
 
-          startingPrice,
-          pricingUnit,
+         startingPrice: startingPrice
+  ? parseInt(startingPrice)
+  : null,
+
+pricingUnit,
 
           status:
             "APPROVED",
@@ -842,8 +903,11 @@ const updateVendor = async (req, res) => {
         websiteUrl,
         instagramUrl,
 
-        startingPrice,
-        pricingUnit,
+       startingPrice: startingPrice
+  ? parseInt(startingPrice)
+  : null,
+
+pricingUnit,
 
         categoryId:
           Number(categoryId),
@@ -1623,33 +1687,240 @@ const checkVendorOwnership =
 
 };
 
-const getAllVendorsAdmin = async (
-  req,
-  res
-) => {
+const getAllVendorsAdmin =
+  async (req, res) => {
 
-  const vendors =
-    await prisma.vendor.findMany({
+    const { status } =
+      req.query;
 
-      include: {
+    const vendors =
+      await prisma.vendor.findMany({
 
-        category: true,
+        where:
+          status
+            ? { status }
+            : {},
 
-        city: true,
+        include: {
 
-      },
+          category: true,
 
-      orderBy: {
+          city: true,
 
-        createdAt: "desc",
+        },
 
-      },
+        orderBy: {
+
+          createdAt: "desc",
+
+        },
+
+      });
+
+    res.json(vendors);
+
+};
+const getVendorAnalyticsAdmin =
+  async (req, res) => {
+
+    const vendorId =
+      Number(req.params.id);
+
+    const events =
+      await prisma.vendorEvent.groupBy({
+
+        by: ["eventType"],
+
+        where: {
+          vendorId,
+        },
+
+        _count: true,
+
+      });
+
+    const analytics = {
+
+      views: 0,
+
+      callClicks: 0,
+
+      whatsappClicks: 0,
+
+      mapClicks: 0,
+
+    };
+
+    events.forEach((event) => {
+
+      if (
+        event.eventType ===
+        "VIEW"
+      ) {
+        analytics.views =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "CALL_CLICK"
+      ) {
+        analytics.callClicks =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "WHATSAPP_CLICK"
+      ) {
+        analytics.whatsappClicks =
+          event._count;
+      }
+
+      if (
+        event.eventType ===
+        "MAP_CLICK"
+      ) {
+        analytics.mapClicks =
+          event._count;
+      }
 
     });
 
-  res.json(vendors);
+    res.json(
+      analytics
+    );
 
 };
+
+const getVendorEventsAdmin =
+  async (req, res) => {
+
+    const events =
+      await prisma.vendorEvent.findMany({
+
+        where: {
+
+          vendorId:
+            Number(
+              req.params.id
+            ),
+
+        },
+
+        orderBy: {
+
+          createdAt:
+            "desc",
+
+        },
+
+        take: 50,
+
+      });
+
+    res.json(events);
+
+};
+
+const getAdminDashboardStats =
+  async (req, res) => {
+
+    try {
+
+      const totalVendors =
+        await prisma.vendor.count();
+
+      const approvedVendors =
+        await prisma.vendor.count({
+
+          where: {
+            status: "APPROVED",
+          },
+
+        });
+
+      const pendingVendors =
+        await prisma.vendor.count({
+
+          where: {
+            status: "PENDING",
+          },
+
+        });
+
+      const rejectedVendors =
+        await prisma.vendor.count({
+
+          where: {
+            status: "REJECTED",
+          },
+
+        });
+
+      const events =
+        await prisma.vendorEvent.groupBy({
+
+          by: ["eventType"],
+
+          _count: true,
+
+        });
+
+      const stats = {
+
+        totalVendors,
+
+        approvedVendors,
+
+        pendingVendors,
+
+        rejectedVendors,
+
+        views: 0,
+
+        callClicks: 0,
+
+        whatsappClicks: 0,
+
+        mapClicks: 0,
+
+      };
+
+      events.forEach((event) => {
+
+        if (event.eventType === "VIEW") {
+          stats.views = event._count;
+        }
+
+        if (event.eventType === "CALL_CLICK") {
+          stats.callClicks = event._count;
+        }
+
+        if (event.eventType === "WHATSAPP_CLICK") {
+          stats.whatsappClicks = event._count;
+        }
+
+        if (event.eventType === "MAP_CLICK") {
+          stats.mapClicks = event._count;
+        }
+
+      });
+
+      res.json(stats);
+
+    } catch (error) {
+
+      console.error(error);
+
+      res.status(500).json({
+        message: error.message,
+      });
+
+    }
+
+};
+
 module.exports = {
   getVendors,
   createVendor,
@@ -1671,4 +1942,7 @@ module.exports = {
   checkVendorOwnership,
   getVendorByIdAdmin,
   getAllVendorsAdmin,
+  getVendorAnalyticsAdmin,
+  getVendorEventsAdmin,
+  getAdminDashboardStats,
 }

@@ -21,7 +21,10 @@ const {
   getVendorCompletion,
   checkVendorOwnership,
   getVendorByIdAdmin,
-  getAllVendorsAdmin
+  getAllVendorsAdmin,
+  getVendorAnalyticsAdmin,
+  getVendorEventsAdmin,
+  getAdminDashboardStats
 } = require("../controllers/vendorController");
 
 const {
@@ -79,6 +82,42 @@ router.get(
   adminMiddleware,
 
   getVendorByIdAdmin
+
+);
+
+router.get(
+
+  "/admin-dashboard",
+
+  authMiddleware,
+
+  adminMiddleware,
+
+  getAdminDashboardStats
+
+);
+
+router.get(
+
+  "/admin/:id/analytics",
+
+  authMiddleware,
+
+  adminMiddleware,
+
+  getVendorAnalyticsAdmin
+
+);
+
+router.get(
+
+  "/admin/:id/events",
+
+  authMiddleware,
+
+  adminMiddleware,
+
+  getVendorEventsAdmin
 
 );
 

@@ -56,7 +56,7 @@ model Vendor {
 
   isElite Boolean @default(false)
 
-  startingPrice String?
+  startingPrice Int?
 
   pricingUnit String?
 
