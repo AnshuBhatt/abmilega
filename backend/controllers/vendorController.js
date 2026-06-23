@@ -608,6 +608,11 @@ const getVendorBySlug = async (req, res) => {
         },
       },
 
+      images: {
+  orderBy: {
+    sortOrder: "asc",
+  },},
+
     },
 
   });

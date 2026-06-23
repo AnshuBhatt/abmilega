@@ -6,35 +6,35 @@ export default function TrackedLink({
   eventType,
   children,
 }: any) {
+  const isExternal = /^https?:\/\//i.test(href) || href.startsWith("mailto:");
 
   async function handleClick() {
-
-    await fetch(
-      `http://localhost:5000/vendors/${vendorId}/events`,
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          eventType,
-        }),
-      }
-    );
-
+    try {
+      await fetch(
+        `http://localhost:5000/vendors/${vendorId}/events`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            eventType,
+          }),
+        }
+      );
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
     <a
       href={href}
-      target="_blank"
+      target={isExternal ? "_blank" : undefined}
+      rel={isExternal ? "noreferrer noopener" : undefined}
       onClick={handleClick}
     >
       {children}
     </a>
   );
-
 }
