@@ -678,58 +678,7 @@ export default function ListMyBusinessPage() {
           </div>
         </section>
 
-        <footer className="mt-6 rounded-[28px] border border-gray-100 bg-white p-6 shadow-sm">
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-            <div>
-              <div className="text-2xl font-bold text-orange-500">AbMilega</div>
-              <p className="mt-2 text-sm text-gray-500">Jo Chahiye, Ab Milega</p>
-              <p className="mt-4 text-sm leading-6 text-gray-500">
-                India&apos;s most trusted platform to discover and connect with the best
-                vendors for every special occasion.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-gray-900">For Vendors</h4>
-              <ul className="mt-4 space-y-2 text-sm text-gray-500">
-                <li>List Your Business</li>
-                <li>Vendor Dashboard</li>
-                <li>Pricing Plans</li>
-                <li>Success Stories</li>
-                <li>Vendor Support</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-gray-900">For Users</h4>
-              <ul className="mt-4 space-y-2 text-sm text-gray-500">
-                <li>Search Vendors</li>
-                <li>Categories</li>
-                <li>Cities</li>
-                <li>How It Works</li>
-                <li>Help Center</li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold text-gray-900">Company</h4>
-              <ul className="mt-4 space-y-2 text-sm text-gray-500">
-                <li>About Us</li>
-                <li>Careers</li>
-                <li>Blog</li>
-                <li>Terms & Conditions</li>
-                <li>Privacy Policy</li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-gray-100 pt-5 text-sm text-gray-500">
-            <span>📘</span>
-            <span>📷</span>
-            <span>🔗</span>
-            <span>▶</span>
-          </div>
-        </footer>
+        
       </div>
     </div>
   );
