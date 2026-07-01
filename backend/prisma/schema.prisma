@@ -24,6 +24,7 @@ model Category {
   amenityTemplates        CategoryAmenityTemplate[]
   packageTemplates        CategoryPackageTemplate[]
   packageFeatureTemplates CategoryPackageFeatureTemplate[]
+  sectionTemplates        CategorySectionTemplate[]
 
   createdAt DateTime @default(now())
 }
@@ -83,19 +84,24 @@ model Vendor {
   category Category @relation(fields: [categoryId], references: [id])
   city     City     @relation(fields: [cityId], references: [id])
 
+  images VendorImage[]
+
   stats        VendorStat[]
   amenities    VendorAmenity[]
   packages     VendorPackage[]
   reviews      VendorReview[]
   events       VendorEvent[]
   savedByUsers UserSavedVendor[]
+  fieldValues  VendorFieldValue[]
+
+  socialLinks VendorSocialLink[]
 
   ownerId Int?
 
-  owner User? @relation(fields: [ownerId],references: [id])
+  owner User? @relation(fields: [ownerId], references: [id])
 
-  showPackages Boolean @default(false)
-  status VendorStatus @default(PENDING)
+  showPackages Boolean      @default(false)
+  status       VendorStatus @default(PENDING)
 
   createdAt DateTime @default(now())
 
@@ -344,4 +350,93 @@ enum VendorStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model CategorySectionTemplate {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  key        String
+  label      String
+  sortOrder  Int      @default(0)
+  isEnabled  Boolean  @default(true)
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  fields CategoryFieldTemplate[]
+
+  @@unique([categoryId, key])
+  @@index([categoryId])
+}
+
+model CategoryFieldTemplate {
+  id             Int     @id @default(autoincrement())
+  sectionId      Int
+  key            String
+  label          String
+  fieldType      String
+  required       Boolean @default(false)
+  sortOrder      Int     @default(0)
+  placeholder    String?
+  helpText       String?
+  validationJson Json?
+  defaultValue   Json?
+
+  section CategorySectionTemplate @relation(fields: [sectionId], references: [id])
+  options CategoryFieldOption[]
+  values  VendorFieldValue[]
+
+  @@unique([sectionId, key])
+  @@index([sectionId])
+}
+
+model CategoryFieldOption {
+  id        Int    @id @default(autoincrement())
+  fieldId   Int
+  label     String
+  value     String
+  sortOrder Int    @default(0)
+
+  field CategoryFieldTemplate @relation(fields: [fieldId], references: [id])
+
+  @@index([fieldId])
+}
+
+model VendorFieldValue {
+  id        Int   @id @default(autoincrement())
+  vendorId  Int
+  fieldId   Int
+  valueJson Json?
+
+  vendor Vendor                @relation(fields: [vendorId], references: [id])
+  field  CategoryFieldTemplate @relation(fields: [fieldId], references: [id])
+
+  @@unique([vendorId, fieldId])
+  @@index([vendorId])
+}
+
+model VendorImage {
+  id        Int     @id @default(autoincrement())
+  vendorId  Int
+  imageUrl  String
+  altText   String?
+  isPrimary Boolean @default(false)
+  sortOrder Int     @default(0)
+  mediaType String? // image, video, logo
+  createdAt DateTime @default(now())
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
+}
+
+model VendorSocialLink {
+  id        Int     @id @default(autoincrement())
+  vendorId  Int
+  type      String
+  url       String
+  sortOrder Int     @default(0)
+  isActive  Boolean @default(true)
+
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@index([vendorId])
 }

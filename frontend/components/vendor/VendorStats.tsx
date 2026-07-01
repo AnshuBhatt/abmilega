@@ -6,28 +6,24 @@ export default function VendorStats({
   if (!stats?.length) return null;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
       {stats.map((stat) => (
-
         <div
-          key={stat.id}
-          className="bg-white border rounded-xl p-4 text-center"
+          key={stat.id ?? stat.templateId ?? stat.template?.label}
+          className="rounded-2xl border border-gray-200 bg-white p-5 text-center shadow-sm"
         >
-          <div className="text-2xl mb-2">
-            {stat.template.icon}
+          <div className="mb-2 text-2xl">
+            {stat.template?.icon || "•"}
           </div>
 
-          <div className="text-2xl font-bold text-orange-500">
+          <div className="text-3xl font-bold text-orange-500">
             {stat.value}
           </div>
 
-          <div className="text-sm text-gray-600">
-            {stat.template.label}
+          <div className="mt-1 text-sm text-gray-500">
+            {stat.template?.label}
           </div>
-
         </div>
-
       ))}
     </div>
   );
